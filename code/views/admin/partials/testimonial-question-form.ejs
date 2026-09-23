@@ -1,0 +1,70 @@
+<%
+const isEdit = typeof testimonialQuestion !== "undefined";
+
+const action = isEdit
+    ? `/admin/testimonial-questions/${testimonialQuestion._id}/edit`
+    : "/admin/testimonial-questions/new";
+%>
+
+<form
+    method="POST"
+    action="<%= action %>">
+
+<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+<div class="card worksheet-question">
+
+    <p>Question</p>
+
+    <textarea
+        name="question"
+        rows="3"
+        required><%= isEdit ? testimonialQuestion.question : '' %></textarea>
+
+    <p>Order</p>
+
+    <input
+        type="number"
+        name="order"
+        value="<%= isEdit ? testimonialQuestion.order : 0 %>">
+
+    <% if (isEdit) { %>
+
+        <p>Active</p>
+
+        <select
+            name="active">
+
+            <option
+                value="true"
+                <%= testimonialQuestion.active ? "selected" : "" %>>
+
+                Active
+
+            </option>
+
+            <option
+                value="false"
+                <%= !testimonialQuestion.active ? "selected" : "" %>>
+
+                Inactive
+
+            </option>
+
+        </select>
+
+    <% } %>
+
+    <br><br>
+
+    <button
+        class="button"
+        type="submit">
+
+        <%= isEdit ? "Save Changes" : "Create Question" %>
+
+    </button>
+
+</div>
+
+</form>

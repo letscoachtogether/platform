@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | <%= site.businessName %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+</head>
+
+<body>
+
+    <%- include("partials/nav") %>
+
+    <section>
+
+        <h1>Success! Your account has been activated.</h1>
+
+        <p>
+            Your payment was received successfully and your client portal is now active.
+        </p>
+
+        <p>
+            You can now sign in using the email address and password you created.
+        </p>
+
+        <a class="button" href="/login">
+            Sign In
+        </a>
+
+    </section>
+</body>

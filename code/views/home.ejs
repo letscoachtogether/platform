@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta 
+        name="viewport" 
+        content="width=device-width, initial-scale=1.0">
+
+    <title>
+        <%= site.businessName %> | <%= site.tagline %>
+    </title>
+
+    <meta name="description" content="<%= site.tagline %> — <%= site.businessName %>, with <%= site.founderName %>.">
+
+    <link rel="canonical" href="<%= baseUrl %>/home">
+
+    <link
+        rel="stylesheet"
+        href="/css/style.css">
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+</head>
+
+<body>
+
+<%- include("partials/nav") %>
+
+
+<section style="text-align: center; padding-top: 200px;">
+<h1 style="max-width: 100ch;">
+    This is your home page
+</h1>
+</section>
+
+
+</body>
+
+
+</html>

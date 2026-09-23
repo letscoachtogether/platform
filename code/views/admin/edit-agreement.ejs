@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Edit Agreement</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+
+    <%- include("../partials/dashboard-nav") %>
+
+<section class="admin-page" style="max-width:900px;">
+
+    <a class="button button-secondary button-sm" href="/admin/agreements">← Back to Agreements</a>
+
+    <br><br>
+
+    <%- include("partials/agreement-form",{agreement}) %>
+
+</section>
+
+</body>
+
+</html>

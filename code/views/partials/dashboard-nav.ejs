@@ -1,0 +1,4 @@
+<nav class="top-nav <%= typeof isAdmin !== "undefined" && isAdmin ? "top-nav-admin" : "" %>">
+    <a class="logo" href="/home"><%= site.businessName %></a>
+    <a class="logout" href="/logout">Logout</a>
+</nav>

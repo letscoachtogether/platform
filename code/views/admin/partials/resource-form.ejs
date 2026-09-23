@@ -1,0 +1,304 @@
+<%
+const isEdit = typeof resource !== "undefined";
+
+const action = isEdit
+    ? `/admin/resources/${resource._id}/edit`
+    : "/admin/resources/new";
+
+const questions = isEdit
+    ? (resource.questions || [])
+    : [];
+%>
+
+<form method="POST" action="<%= action %>">
+
+<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+<div class="card worksheet-question">
+
+    <p>Title</p>
+
+    <input
+        type="text"
+        name="title"
+        value="<%= isEdit ? resource.title : '' %>"
+        required>
+
+    <p>Slug</p>
+
+    <input
+        type="text"
+        name="slug"
+        value="<%= isEdit ? resource.slug : '' %>"
+        required>
+
+    <p>Type</p>
+
+    <select name="type">
+
+        <option
+            value="worksheet"
+            <%= !isEdit || resource.type === "worksheet" ? "selected" : "" %>>
+
+            Worksheet
+
+        </option>
+
+        <option
+            value="tool"
+            <%= isEdit && resource.type === "tool" ? "selected" : "" %>>
+
+            Tool
+
+        </option>
+
+        <option
+            value="list"
+            <%= isEdit && resource.type === "list" ? "selected" : "" %>>
+
+            List
+
+        </option>
+
+    </select>
+
+    <p>Category — determines where this shows up</p>
+
+    <select name="category">
+
+        <% [
+            { value: "pre-session", label: "Pre-Session — attached to each session, on the Sessions tab" },
+            { value: "exercises", label: "Exercises — Resources tab" },
+            { value: "onboarding", label: "Onboarding — Resources tab, and the dashboard checklist until completed" },
+            { value: "worksheets", label: "Worksheets — Resources tab" },
+            { value: "reference-lists", label: "Reference Lists — Resources tab" },
+            { value: "progress", label: "Progress — dashboard, \"Your Coaching Journey\"" },
+            { value: "continuity", label: "Continuity — dashboard, \"Share & Explore\"" }
+        ].forEach(category => { %>
+
+            <option
+                value="<%= category.value %>"
+                <%= isEdit && resource.category === category.value ? "selected" : "" %>>
+
+                <%= category.label %>
+
+            </option>
+
+        <% }) %>
+
+    </select>
+
+    <p>Summary</p>
+
+    <textarea name="summary"><%= isEdit ? resource.summary : "" %></textarea>
+
+    <p>Content</p>
+
+    <textarea
+        name="content"
+        rows="8"><%= isEdit ? resource.content : "" %></textarea>
+
+    <p>Display Order</p>
+
+    <input
+        type="number"
+        name="display_order"
+        value="<%= isEdit ? resource.display_order : 0 %>">
+
+    <% if (isEdit) { %>
+
+        <p>Active</p>
+
+        <select name="active">
+
+            <option
+                value="true"
+                <%= resource.active ? "selected" : "" %>>
+
+                Active
+
+            </option>
+
+            <option
+                value="false"
+                <%= !resource.active ? "selected" : "" %>>
+
+                Inactive
+
+            </option>
+
+        </select>
+
+    <% } %>
+
+    <hr>
+
+    <h2>Questions</h2>
+
+    <div id="questions">
+
+        <% questions.forEach((question, index) => { %>
+
+            <div class="question-block" style="margin-bottom:25px;">
+
+                <input
+                    type="text"
+                    name="questions[<%= index %>][id]"
+                    value="<%= question.id %>"
+                    placeholder="Question ID"
+                    required>
+
+                <input
+                    type="text"
+                    name="questions[<%= index %>][question]"
+                    value="<%= question.question %>"
+                    placeholder="Question"
+                    required>
+
+                <select
+                    name="questions[<%= index %>][type]">
+
+                    <option
+                        value="textarea"
+                        <%= question.type === "textarea" ? "selected" : "" %>>
+
+                        Textarea
+
+                    </option>
+
+                    <option
+                        value="text"
+                        <%= question.type === "text" ? "selected" : "" %>>
+
+                        Text
+
+                    </option>
+
+                </select>
+
+                <input
+                    type="text"
+                    name="questions[<%= index %>][placeholder]"
+                    value="<%= question.placeholder || '' %>"
+                    placeholder="Placeholder">
+
+                <label>
+
+                    <input
+                        type="checkbox"
+                        name="questions[<%= index %>][required]"
+                        <%= question.required ? "checked" : "" %>>
+
+                    Required
+
+                </label>
+
+                <button
+                    type="button"
+                    onclick="this.parentElement.remove()">
+
+                    Remove
+
+                </button>
+
+            </div>
+
+        <% }) %>
+
+    </div>
+
+    <button
+        type="button"
+        onclick="addQuestion()">
+
+        + Add Question
+
+    </button>
+
+    <br><br>
+
+    <button
+        class="button"
+        type="submit">
+
+        <%= isEdit ? "Save Changes" : "Create Resource" %>
+
+    </button>
+
+</div>
+
+</form>
+
+<script>
+
+let questionIndex = <%= questions.length %>;
+
+function addQuestion() {
+
+    const container = document.getElementById("questions");
+
+    const div = document.createElement("div");
+
+    div.className = "question-block";
+
+    div.style.marginBottom = "25px";
+
+    div.innerHTML = `
+
+        <input
+            type="text"
+            name="questions[${questionIndex}][id]"
+            placeholder="Question ID"
+            required>
+
+        <input
+            type="text"
+            name="questions[${questionIndex}][question]"
+            placeholder="Question"
+            required>
+
+        <select
+            name="questions[${questionIndex}][type]">
+
+            <option value="textarea">
+                Textarea
+            </option>
+
+            <option value="text">
+                Text
+            </option>
+
+        </select>
+
+        <input
+            type="text"
+            name="questions[${questionIndex}][placeholder]"
+            placeholder="Placeholder">
+
+        <label>
+
+            <input
+                type="checkbox"
+                name="questions[${questionIndex}][required]">
+
+            Required
+
+        </label>
+
+        <button
+            type="button"
+            onclick="this.parentElement.remove()">
+
+            Remove
+
+        </button>
+
+    `;
+
+    container.appendChild(div);
+
+    questionIndex++;
+
+}
+
+</script>

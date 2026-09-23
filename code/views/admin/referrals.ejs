@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Referrals</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+
+    <%- include("../partials/dashboard-nav") %>
+
+    <div class="dashboard-layout">
+
+        <%- include("partials/admin-sidebar", { currentPage: "referrals" }) %>
+
+        <main class="dashboard-main">
+
+            <div class="admin-page-header">
+                <div>
+                    <h1>Referrals</h1>
+                    <p>Friends and family your clients have sent your way.</p>
+                </div>
+            </div>
+
+            <% if (!referrals.length) { %>
+
+                <div class="admin-empty">
+                    <p>No referrals yet.</p>
+                </div>
+
+            <% } else { %>
+
+                <div class="admin-list">
+
+                    <% referrals.forEach(r => { %>
+
+                        <div class="admin-row">
+
+                            <div class="admin-row-main">
+
+                                <div class="admin-row-title">
+                                    <%= r.friendName %>
+                                    <span class="badge badge-active"><%= r.friendEmail %></span>
+                                </div>
+
+                                <div class="admin-row-meta">
+                                    Referred by
+                                    <% if (r.submittedBy) { %>
+                                        <a href="/admin/clients/<%= r.submittedBy._id %>"><%= r.submittedBy.preferredName || r.submittedBy.firstName %> <%= r.submittedBy.lastName %></a>
+                                    <% } else { %>
+                                        a former client
+                                    <% } %>
+                                    · <span data-datetime="<%= r.createdAt.toISOString() %>" data-format="date-short">
+                                        <%= r.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) %>
+                                    </span>
+                                    <% if (r.note) { %>
+                                        — “<%= r.note %>”
+                                    <% } %>
+                                </div>
+
+                            </div>
+
+                            <div class="admin-row-actions">
+
+                                <form
+                                    method="POST"
+                                    action="/admin/referrals/<%= r._id %>/delete"
+                                    onsubmit="return confirm('Delete this referral?');">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <button class="button button-danger button-sm">
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    <% }) %>
+
+                </div>
+
+            <% } %>
+
+        </main>
+
+    </div>
+
+    <script src="/js/localizeDates.js"></script>
+
+</body>
+
+</html>

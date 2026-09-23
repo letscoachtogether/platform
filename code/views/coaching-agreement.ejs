@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coaching Agreement | <%= site.businessName %></title>
+
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+</head>
+
+<body>
+
+    <%- include("partials/nav") %>
+
+    <main class="container" style="margin-top: 150px">
+
+        <h1>Coaching Agreement</h1>
+
+        <% sections.forEach(section => { %>
+
+            <section class="agreement-section">
+
+                <h2>
+                    <%= section.title %>
+                </h2>
+
+                <div>
+                    <%- section.content %>
+                </div>
+
+            </section>
+
+        <% }) %>
+
+    </main>
+
+</body>
+
+</html>

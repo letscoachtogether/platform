@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Edit Testimonial</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+    <%- include("../partials/dashboard-nav") %>
+
+<section class="admin-page" style="max-width:800px;">
+
+    <a class="button button-secondary button-sm" href="/admin/testimonials">← Back to Testimonials</a>
+
+    <br><br>
+
+    <%- include(
+        "partials/testimonial-form",
+        {
+            testimonial
+        }
+    ) %>
+
+</section>
+
+</body>
+
+</html>

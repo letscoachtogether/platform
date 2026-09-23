@@ -1,0 +1,582 @@
+/* --------------------------------------------------
+   Imports
+-------------------------------------------------- */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap");
+
+@import url("button.css");
+@import url("nav.css");
+@import url("wheel.css");
+@import url("modal.css");
+@import url("login.css");
+@import url("values.css");
+
+/* --------------------------------------------------
+   Design Tokens
+-------------------------------------------------- */
+
+:root {
+
+  /* Colors */
+  --bg: #f6f5f2;
+  --surface: rgba(255, 255, 255, 0.82);
+  --soft: #efede7;
+
+  --text: #2f352f;
+  --muted: #6c746d;
+  --deep: #708c74;
+  --gold: #C8A86A;
+
+  --border: rgba(40, 50, 40, 0.08);
+
+  /* Shadows */
+  --shadow-sm:
+    0 1px 2px rgba(0, 0, 0, 0.03);
+
+  --shadow-md:
+    0 8px 20px rgba(20, 30, 20, 0.05);
+
+  --shadow-lg:
+    0 16px 36px rgba(20, 30, 20, 0.07);
+
+  /* Radius */
+  --radius-sm: 14px;
+  --radius-md: 22px;
+  --radius-lg: 36px;
+
+  /* Layout */
+  --container: 1150px;
+
+  /* Timing */
+  --transition:
+    180ms ease;
+}
+
+/* --------------------------------------------------
+   Reset
+-------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+
+  font-family: "Inter", sans-serif;
+
+  color: var(--text);
+  background: var(--bg);
+
+  line-height: 1.85;
+  letter-spacing: 0;
+
+  overflow-x: hidden;
+
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* --------------------------------------------------
+   Nav (single-task pages: worksheets, roadmap, referral, etc. — every one
+   of them already assumes a 150px-tall fixed header via its own
+   margin-top, but until now nothing here actually styled or positioned
+   it — the logo rendered as plain, unstyled black-and-blue browser text
+   sitting inline at the very top of the page.)
+-------------------------------------------------- */
+
+nav.top-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 70px;
+
+    padding: 0 30px;
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    border-bottom: 1px solid #eee;
+
+    z-index: 1000;
+}
+
+nav.top-nav .logo {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 17px;
+    text-transform: uppercase;
+    color: #0f766e;
+    letter-spacing: 1.5px;
+
+    white-space: nowrap;
+
+    transition: opacity 0.2s ease;
+}
+
+nav.top-nav .logo:hover {
+    opacity: 0.8;
+}
+
+nav.top-nav .logo::after {
+    content: "Client Portal";
+
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: none;
+    color: #94a3b8;
+
+    border-left: 1px solid #e2e8f0;
+    padding-left: 8px;
+}
+
+/* --------------------------------------------------
+   Layout
+-------------------------------------------------- */
+
+section {
+  position: relative;
+
+  width: 100%;
+  max-width: var(--container);
+
+  margin: 0 auto;
+  padding: 100px 24px;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* --------------------------------------------------
+   Typography
+-------------------------------------------------- */
+
+h1,
+h2,
+h3,
+h4 {
+  margin-top: 0;
+
+  color: var(--text);
+
+  letter-spacing: -0.02em;
+  line-height: 1.18;
+}
+
+h1 {
+  font-size: clamp(2.5rem, 4vw, 4.8rem);
+  font-weight: 400;
+
+  max-width: 14ch;
+}
+
+h2 {
+  font-size: clamp(1.9rem, 3vw, 3rem);
+  font-weight: 400;
+
+  margin-bottom: 22px;
+}
+
+h3 {
+  font-size: 1.35rem;
+  font-weight: 400;
+}
+
+p {
+  margin-top: 0;
+
+  color: var(--muted);
+
+  font-size: 1.02rem;
+  line-height: 1.95;
+
+  /* max-width: 68ch; */
+}
+
+.subtitle {
+  display: inline-block;
+
+  margin-bottom: 18px;
+
+  font-size: 0.82rem;
+  font-weight: 500;
+
+  letter-spacing: 0.08em;
+  text-transform: none;
+
+  color: var(--muted);
+}
+
+/* --------------------------------------------------
+   Grid Layouts
+-------------------------------------------------- */
+
+.grid {
+  display: grid;
+  gap: 28px;
+
+  margin-top: 42px;
+}
+
+.row {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 24px;
+}
+
+/* --------------------------------------------------
+   Cards
+-------------------------------------------------- */
+
+.card {
+  position: relative;
+
+  margin-top: 60px; 
+  
+  margin-bottom: 20px;
+
+  padding: 34px;
+
+  border-radius: var(--radius-md);
+
+  background: var(--surface);
+
+  backdrop-filter: blur(12px);
+
+  border: 1px solid var(--border);
+
+  box-shadow: var(--shadow-md);
+
+  overflow: hidden;
+
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition),
+    background var(--transition);
+}
+
+
+.card:hover {
+  border-color:
+    rgba(112, 140, 116, 0.16);
+
+  background:
+    rgba(255, 255, 255, 0.9);
+
+  box-shadow: var(--shadow-lg);
+}
+
+.card p {
+  margin-bottom: 0;
+}
+
+/* --------------------------------------------------
+   Lists
+-------------------------------------------------- */
+
+ul {
+  padding-left: 20px;
+}
+
+li {
+  margin-bottom: 12px;
+
+  color: var(--muted);
+
+  line-height: 1.8;
+}
+
+/* --------------------------------------------------
+   Price / Supporting Text
+-------------------------------------------------- */
+
+.price {
+  margin-top: 18px;
+
+  font-size: 1rem;
+  font-weight: 500;
+
+  color: var(--gold);
+}
+
+/* --------------------------------------------------
+   Links
+-------------------------------------------------- */
+
+a {
+  color: inherit;
+  text-decoration: none;
+
+  transition:
+    color var(--transition),
+    opacity var(--transition);
+}
+
+a:hover {
+  color: var(--deep);
+}
+
+/* --------------------------------------------------
+   Images
+-------------------------------------------------- */
+
+img {
+  max-width: 100%;
+  display: block;
+
+  border-radius: var(--radius-sm);
+}
+
+/* --------------------------------------------------
+   Selection
+-------------------------------------------------- */
+
+::selection {
+  background: rgba(112, 140, 116, 0.18);
+}
+
+/* --------------------------------------------------
+   Tablet
+-------------------------------------------------- */
+
+@media (max-width: 900px) {
+
+  section {
+    padding: 96px 20px;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: 28px;
+  }
+}
+
+/* --------------------------------------------------
+   Mobile
+-------------------------------------------------- */
+
+@media (max-width: 600px) {
+
+  section {
+    padding: 78px 18px;
+  }
+
+  h2 {
+    margin-bottom: 18px;
+  }
+
+  .card {
+    padding: 22px;
+
+    border-radius: var(--radius-sm);
+  }
+
+  .grid {
+    gap: 20px;
+  }
+}
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 45px;
+  box-sizing: border-box;
+}
+
+.toggle-password {
+  all: unset;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* prevent hover effects from global button styles */
+.toggle-password:hover,
+.toggle-password:focus,
+.toggle-password:active {
+    outline: none;
+}
+
+/* ensure icon never shifts or changes color unexpectedly */
+.toggle-password svg {
+  width: 20px;
+  height: 20px;
+  color: #333;
+  transition: none;
+}
+
+/* optional: kill focus outline if your global CSS adds one */
+
+.toggle-password img {
+  width: 20px;
+  height: 20px;
+}
+
+.error-message {
+  background: #fdecea;
+  color: #b42318;
+  border: 1px solid #f5c2c7;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+}
+.step {
+  display: none;
+}
+
+.step.active {
+  display: block;
+}
+
+.worksheet-question {
+  margin-bottom: 32px;
+}
+
+.worksheet-question textarea {
+  display: block;
+
+  width: 100%;
+  min-height: 220px;
+
+  padding: 18px 20px;
+
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.6;
+
+  color: var(--text);
+  background: white;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+
+  resize: vertical;
+
+  box-shadow: var(--shadow-sm);
+
+  transition: 
+      border-color var(--transition),
+      box-shadow var(--transition);
+}
+
+
+.worksheet-question textarea:focus {
+  outline: none;
+
+  border-color: var(--deep);
+
+  box-shadow:
+      0 0 0 3px rgba(112,140,116,0.15);
+}
+
+.worksheet-question input[type="text"] {
+  display: block;
+
+  width: 100%;
+
+  padding: 14px 20px;
+
+  font-family: inherit;
+  font-size: 1rem;
+
+  color: var(--text);
+  background: white;
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+
+  box-shadow: var(--shadow-sm);
+
+  transition:
+      border-color var(--transition),
+      box-shadow var(--transition);
+}
+
+.worksheet-question input[type="text"]:focus {
+  outline: none;
+
+  border-color: var(--deep);
+
+  box-shadow:
+      0 0 0 3px rgba(112,140,116,0.15);
+}
+
+/* =========================
+   Footer
+========================= */
+
+.site-footer {
+  margin-top: 100px;
+  padding: 40px 0;
+
+  border-top: 1px solid var(--border);
+
+  background: var(--bg);
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+.footer-content p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+.footer-links a:hover {
+  color: var(--deep);
+}

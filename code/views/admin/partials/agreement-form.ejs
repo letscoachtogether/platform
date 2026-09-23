@@ -1,0 +1,246 @@
+<%
+const isEdit = typeof agreement !== "undefined";
+
+const action = isEdit
+    ? `/admin/agreements/${agreement._id}/edit`
+    : "/admin/agreements/new";
+
+const sections = isEdit
+    ? agreement.sections
+    : [];
+
+// Matches the keys renderAgreement.js actually substitutes (controllers/renderAgreement.js).
+// offering.endDate isn't a real field, so {{endDate}} always renders blank — left out here
+// on purpose rather than advertising a placeholder that doesn't work.
+const PLACEHOLDERS = [
+    { key: "clientName", label: "Client's full name" },
+    { key: "businessName", label: "Your business name" },
+    { key: "effectiveDate", label: "Today's date" },
+    { key: "programName", label: "Offering name" },
+    { key: "price", label: "Offering price" },
+    { key: "duration", label: "Offering duration" },
+    { key: "sessionLength", label: "Session length" },
+    { key: "sessionCount", label: "Number of sessions" }
+];
+%>
+
+<form method="POST" action="<%= action %>">
+
+<input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+<div class="dashboard-card">
+
+    <h2>Details</h2>
+
+    <label for="version">Name</label>
+    <p style="color:#64748b; margin:4px 0 10px; font-size:0.9rem;">
+        A short, descriptive label so you can tell agreements apart when assigning one to an offering — clients
+        never see this.
+    </p>
+    <input
+        type="text"
+        id="version"
+        name="version"
+        placeholder="e.g. 2026 Standard Agreement"
+        value="<%= isEdit ? agreement.version : '' %>"
+        required>
+
+    <% if (isEdit) { %>
+
+        <label for="active" style="display:block; margin-top:20px;">Status</label>
+        <p style="color:#64748b; margin:4px 0 10px; font-size:0.9rem;">
+            Inactive agreements stay assigned to any offering already using them, but can't be assigned to new
+            offerings.
+        </p>
+        <select id="active" name="active">
+            <option value="true" <%= agreement.active ? "selected" : "" %>>Active</option>
+            <option value="false" <%= !agreement.active ? "selected" : "" %>>Inactive</option>
+        </select>
+
+    <% } %>
+
+</div>
+
+<div class="dashboard-card">
+
+    <h2>Available Placeholders</h2>
+    <p style="color:#64748b; margin-bottom:14px; font-size:0.9rem;">
+        Click into a section's content below, then click one of these to insert it there. Each gets swapped for
+        the real value when a client views their agreement.
+    </p>
+
+    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+        <% PLACEHOLDERS.forEach(p => { %>
+            <button
+                type="button"
+                class="button button-secondary button-sm placeholder-chip"
+                data-placeholder="{{<%= p.key %>}}"
+                title="<%= p.label %>">
+                {{<%= p.key %>}}
+            </button>
+        <% }) %>
+    </div>
+
+</div>
+
+<div class="dashboard-card">
+
+    <h2>Sections</h2>
+
+    <div id="sections">
+
+        <% sections.forEach((section, index) => { %>
+
+            <div class="section-block" style="margin-bottom:24px; padding-bottom:24px; border-bottom:1px solid #e5e7eb;">
+
+                <label>Section Title</label>
+                <input
+                    type="text"
+                    name="sections[<%= index %>][title]"
+                    value="<%= section.title %>"
+                    placeholder="e.g. Scope of Services"
+                    style="margin-bottom:14px;">
+
+                <label>Content</label>
+                <textarea
+                    name="sections[<%= index %>][content]"
+                    rows="8"
+                    placeholder="Section content..."><%= section.content %></textarea>
+
+                <div class="dashboard-actions" style="margin-top:12px;">
+                    <button type="button" class="button button-secondary button-sm" onclick="moveSection(this,'up')">↑ Move Up</button>
+                    <button type="button" class="button button-secondary button-sm" onclick="moveSection(this,'down')">↓ Move Down</button>
+                    <button type="button" class="button button-danger button-sm" onclick="removeSection(this)">Remove</button>
+                </div>
+
+            </div>
+
+        <% }) %>
+
+    </div>
+
+    <% if (!sections.length) { %>
+        <p id="noSectionsNote" style="color:#64748b; margin-bottom:14px;">No sections yet — add at least one below.</p>
+    <% } %>
+
+    <button type="button" class="button button-secondary" onclick="addSection()">+ Add Section</button>
+
+</div>
+
+<div class="dashboard-actions">
+    <button class="button" type="submit">
+        <%= isEdit ? "Save Changes" : "Create Agreement" %>
+    </button>
+</div>
+
+</form>
+
+<script>
+
+    let sectionIndex = <%= sections.length %>;
+    let lastFocusedTextarea = null;
+
+    const sectionsContainer = document.getElementById("sections");
+
+    sectionsContainer.addEventListener("focusin", (e) => {
+        if (e.target.tagName === "TEXTAREA") {
+            lastFocusedTextarea = e.target;
+        }
+    });
+
+    function renumberSections() {
+        document.querySelectorAll("#sections .section-block").forEach((block, index) => {
+            block.querySelectorAll("[name^='sections[']").forEach(input => {
+                input.name = input.name.replace(/sections\[\d+\]/, `sections[${index}]`);
+            });
+        });
+    }
+
+    function addSection() {
+
+        const noSectionsNote = document.getElementById("noSectionsNote");
+        if (noSectionsNote) noSectionsNote.remove();
+
+        const div = document.createElement("div");
+
+        div.className = "section-block";
+        div.style.marginBottom = "24px";
+        div.style.paddingBottom = "24px";
+        div.style.borderBottom = "1px solid #e5e7eb";
+
+        div.innerHTML = `
+            <label>Section Title</label>
+            <input
+                type="text"
+                name="sections[${sectionIndex}][title]"
+                placeholder="e.g. Scope of Services"
+                style="margin-bottom:14px;">
+
+            <label>Content</label>
+            <textarea
+                name="sections[${sectionIndex}][content]"
+                rows="8"
+                placeholder="Section content..."></textarea>
+
+            <div class="dashboard-actions" style="margin-top:12px;">
+                <button type="button" class="button button-secondary button-sm" onclick="moveSection(this,'up')">↑ Move Up</button>
+                <button type="button" class="button button-secondary button-sm" onclick="moveSection(this,'down')">↓ Move Down</button>
+                <button type="button" class="button button-danger button-sm" onclick="removeSection(this)">Remove</button>
+            </div>
+        `;
+
+        sectionsContainer.appendChild(div);
+
+        sectionIndex++;
+
+    }
+
+    function removeSection(button) {
+
+        if (!confirm("Remove this section?")) return;
+
+        button.closest(".section-block").remove();
+
+        renumberSections();
+
+    }
+
+    function moveSection(button, direction) {
+
+        const block = button.closest(".section-block");
+
+        if (direction === "up" && block.previousElementSibling) {
+            block.parentElement.insertBefore(block, block.previousElementSibling);
+        } else if (direction === "down" && block.nextElementSibling) {
+            block.parentElement.insertBefore(block.nextElementSibling, block);
+        }
+
+        renumberSections();
+
+    }
+
+    document.querySelectorAll(".placeholder-chip").forEach(chip => {
+
+        chip.addEventListener("click", () => {
+
+            const target = lastFocusedTextarea;
+
+            if (!target) {
+                alert("Click into a section's content box first, then click a placeholder to insert it there.");
+                return;
+            }
+
+            const value = chip.dataset.placeholder;
+            const start = target.selectionStart ?? target.value.length;
+            const end = target.selectionEnd ?? target.value.length;
+
+            target.value = target.value.slice(0, start) + value + target.value.slice(end);
+
+            target.focus();
+            target.selectionStart = target.selectionEnd = start + value.length;
+
+        });
+
+    });
+
+</script>

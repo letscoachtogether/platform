@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Values</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+</head>
+
+<body>
+
+    <main class="values-app">
+
+        <!-- =====================================================
+         PROGRESS
+    ====================================================== -->
+
+        <div class="progress-container">
+
+            <div class="progress-bar">
+
+                <div id="progressBar" class="progress-fill"></div>
+
+            </div>
+
+            <div id="progressText" class="progress-text">
+                Step 1 of 3
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+         GLOBAL ERROR
+    ====================================================== -->
+
+        <div id="valuesError" class="values-error-message" aria-live="polite" role="alert"></div>
+
+
+        <!-- =====================================================
+         STEP 1
+    ====================================================== -->
+
+        <section id="step1" class="step active" aria-hidden="false">
+
+            <div class="step-header">
+
+                <span class="eyebrow">
+                    Step 1
+                </span>
+
+                <h1>
+                    Which values resonate with you?
+                </h1>
+
+                <p>
+                    Select the values that feel meaningful to you.
+                    Don't worry about choosing too many.
+                </p>
+
+            </div>
+
+
+            <div id="valuesGrid" class="values-grid">
+
+                <% if (Array.isArray(values)) { %>
+
+                    <% values.forEach(value=> { %>
+
+                        <button type="button" class="values-selection-card" data-value="<%= value %>"
+                            aria-pressed="false">
+
+                            <span class="value-check" aria-hidden="true">
+                                ✓
+                            </span>
+
+                            <span>
+                                <%= value %>
+                            </span>
+
+                        </button>
+
+                        <% }) %>
+
+                            <% } %>
+
+            </div>
+
+
+            <div class="selection-count">
+
+                <strong id="selectionCount">
+                    0
+                </strong>
+
+                values selected
+
+            </div>
+
+
+            <div class="step-actions">
+
+                <a class="button"
+                href="/client-dashboard/resources">Back</a>
+
+                <button id="nextSelection" disabled>
+                    Next
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+         STEP 2
+    ====================================================== -->
+
+        <section id="step2" class="step" aria-hidden="true">
+
+            <div class="step-header">
+
+                <span class="eyebrow">
+                    Step 2
+                </span>
+
+                <h1>
+                    Sort your values
+                </h1>
+
+                <p>
+                    Categorize each value.
+                </p>
+
+            </div>
+
+
+            <!-- ===================================================
+           UNASSIGNED VALUES
+      ==================================================== -->
+
+            <div class="values-unassigned-container">
+
+                <div class="category-header">
+
+                    <h2>
+                        Values to sort
+                    </h2>
+
+                    <span id="unassignedCount" class="category-count">
+                        0
+                    </span>
+
+                </div>
+
+                <p class="category-description">
+                    Values here have not been assigned yet.
+                </p>
+
+                <div class="values-unassigned-zone" role="list" aria-label="Values to sort" data-category="unassigned">
+                </div>
+
+            </div>
+
+
+            <!-- ===================================================
+           SORTING BOARD
+      ==================================================== -->
+
+            <div class="sorting-board">
+
+
+                <!-- CATEGORY 1 -->
+
+                <div class="category" data-category="category1">
+
+                    <div class="category-header">
+
+                        <h2>
+                            Category 1
+                        </h2>
+
+                        <span class="category-count" data-count="category1">
+                            0
+                        </span>
+
+                    </div>
+
+                    <div class="values-drop-zone" data-category="category1" role="list" aria-label="Category 1 values">
+                    </div>
+
+                </div>
+
+
+                <!-- CATEGORY 2 -->
+
+                <div class="category" data-category="category2">
+
+                    <div class="category-header">
+
+                        <h2>
+                            Category 2
+                        </h2>
+
+                        <span class="category-count" data-count="category2">
+                            0
+                        </span>
+
+                    </div>
+
+                    <div class="values-drop-zone" data-category="category2" role="list" aria-label="Category 2 values">
+                    </div>
+
+                </div>
+
+
+                <!-- CATEGORY 3 -->
+
+                <div class="category" data-category="category3">
+
+                    <div class="category-header">
+
+                        <h2>
+                            Category 3
+                        </h2>
+
+                        <span class="category-count" data-count="category3">
+                            0
+                        </span>
+
+                    </div>
+
+                    <div class="values-drop-zone" data-category="category3" role="list" aria-label="Category 3 values">
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div id="sortError" class="error-message" role="alert"></div>
+
+
+            <div class="step-actions">
+
+                <button data-values-back="1">
+                    Back
+                </button>
+
+                <button id="nextSorting">
+                    Next
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+         STEP 3
+    ====================================================== -->
+
+        <section id="step3" class="step" aria-hidden="true">
+
+            <div class="step-header">
+
+                <span class="eyebrow">
+                    Step 3
+                </span>
+
+                <h1>
+                    Choose your core values
+                </h1>
+
+                <p>
+                    Choose one value that reflects the essence of each category.
+                </p>
+
+            </div>
+
+
+            <div id="coreValueCategories" class="core-categories"></div>
+
+
+            <div id="coreError" class="error-message" role="alert"></div>
+
+
+            <div class="step-actions">
+
+                <button data-values-back="2">
+                    Back
+                </button>
+
+                <button id="completeValues" disabled>
+                    Complete
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+         STEP 4
+    ====================================================== -->
+
+        <section id="step4" class="step" aria-hidden="true">
+
+            <h1>
+                Your Values
+            </h1>
+
+
+
+            <div id="completionCoreValues" class="core-results"></div>
+
+
+            <div class="results-section">
+
+                <div id="completionCategories" class="all-results"></div>
+
+            </div>
+
+
+            <div class="step-actions">
+
+                <button data-values-back="3">
+                    Edit Core Values
+                </button>
+
+                <button data-values-restart>
+                    Start Again
+                </button>
+
+                <a class="button" href="/client-dashboard/resources">Back to Resources</a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script>
+        window.valuesData = <%- JSON.stringify(values || []) %>;
+        window.CSRF_TOKEN = <%- JSON.stringify(csrfToken) %>;
+    </script>
+
+    <script src="/js/values.js"></script>
+
+</body>
+
+</html>

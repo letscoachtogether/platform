@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Select Coaching Time | <%= site.businessName %></title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+
+
+<body>
+
+<%- include("../partials/dashboard-nav") %>
+
+
+<div class="dashboard-layout">
+
+
+    <aside class="sidebar">
+
+        <div class="sidebar-title">
+            Client Portal
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="/client-dashboard/main"
+               class="sidebar-link">
+                Dashboard
+            </a>
+
+            <a href="/client-dashboard/resources"
+               class="sidebar-link">
+                Resources
+            </a>
+
+            <a href="/client-dashboard/sessions"
+               class="sidebar-link active">
+                Sessions
+            </a>
+
+            <a href="/client-dashboard/profile"
+               class="sidebar-link">
+                Profile
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+
+    <main class="dashboard-main">
+
+
+        <div class="dashboard-header">
+
+            <h1>
+                <% if (isReschedule) { %>
+                    Change Your Weekly Coaching Time
+                <% } else { %>
+                    Choose Your Weekly Coaching Time
+                <% } %>
+            </h1>
+
+            <p>
+                <% if (isReschedule) { %>
+                    Pick a new weekly time and start date. Any of your upcoming sessions that haven't happened yet
+                    will be moved to the new time — sessions you've already had are not affected.
+                <% } else { %>
+                    Select the time that works best for your weekly coaching sessions.
+                    Then choose when you would like your coaching container to begin.
+                <% } %>
+            </p>
+
+        </div>
+
+
+
+        <% if (!slotGroups || slotGroups.length === 0) { %>
+
+
+            <div class="dashboard-card status-card">
+
+                <h2>
+                    No Available Times
+                </h2>
+
+                <p>
+                    There are currently no available coaching slots.
+                </p>
+
+            </div>
+
+
+        <% } else { %>
+
+
+        <form method="POST"
+              action="/client-dashboard/sessions/book">
+
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="timezone" id="clientTimezone" value="">
+            <% if (isReschedule) { %>
+                <input type="hidden" name="reschedule" value="true">
+            <% } %>
+
+            <!-- STEP 1: WEEKLY TIME -->
+
+            <div class="weekday-grid">
+
+
+                <% slotGroups.forEach(group => { %>
+
+
+                    <div class="card weekday-column">
+
+
+                        <h3>
+                            <%= group.weekday %>
+                        </h3>
+
+                        <% group.slots.forEach(slot => { %>
+
+                            <label class="time-button">
+                        
+                                <input
+                                    type="radio"
+                                    name="slot"
+                                    value="<%= slot.value %>"
+                                    data-starts='<%- JSON.stringify(slot.starts) %>'
+                                    required>
+                        
+                                <span>
+                                    <%= slot.label %>
+                                </span>
+                        
+                            </label>
+                        
+                        <% }) %>
+
+
+                    </div>
+
+
+                <% }) %>
+
+
+            </div>
+
+
+
+            <!-- STEP 2: START DATE -->
+
+            <div id="startDateCard"
+                 class="card"
+                 style="display:none; margin-top:32px;">
+
+
+                <h2>
+                    Choose Your First Session
+                </h2>
+
+
+                <p>
+                    Your weekly coaching time will repeat from this date.
+                </p>
+
+
+                <div id="startDates"
+                     class="weekday-grid">
+
+                </div>
+
+
+            </div>
+
+
+
+
+            <div class="dashboard-actions">
+
+
+                <button
+                    type="submit"
+                    class="button primary">
+                    Continue
+
+                </button>
+
+
+
+                <a href="/client-dashboard/sessions"
+                   class="button secondary">
+
+                    Cancel
+
+                </a>
+
+
+            </div>
+
+
+
+        </form>
+
+
+        <% } %>
+
+
+    </main>
+
+
+</div>
+
+
+
+<script>
+    // Read straight from the browser at submission time, rather than
+    // trusting the ?tz= this page happened to be reached with — this is
+    // what gets saved on the container and used later for session-reminder
+    // emails, where there's no browser to ask.
+    (function () {
+        try {
+            const field = document.getElementById("clientTimezone");
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            if (field && tz) field.value = tz;
+        } catch (err) {
+            // Unsupported Intl API or similar — submits blank, and the
+            // server falls back to the business's own timezone.
+        }
+    })();
+</script>
+
+<script src="/js/selectSlots.js"></script>
+
+
+</body>
+
+</html>

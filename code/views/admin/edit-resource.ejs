@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Edit Resource</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+    <%- include("../partials/dashboard-nav") %>
+
+<section class="admin-page" style="max-width:800px;">
+
+    <a class="button button-secondary button-sm" href="/admin/resources">← Back to Resources</a>
+
+    <br><br>
+
+    <%- include("partials/resource-form", { resource }) %>
+
+</section>
+
+</body>
+
+</html>

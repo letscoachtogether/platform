@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Testimonial Submissions</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+
+    <%- include("../partials/dashboard-nav") %>
+
+    <div class="dashboard-layout">
+
+        <%- include("partials/admin-sidebar", { currentPage: "testimonial-submissions" }) %>
+
+        <main class="dashboard-main">
+
+            <div class="admin-page-header">
+                <div>
+                    <h1>Testimonial Submissions</h1>
+                    <p>Testimonials clients submit from their dashboard land here first. Nothing goes to the
+                        homepage until you review and approve it.</p>
+                </div>
+            </div>
+
+            <% if (!submissions.length) { %>
+
+                <div class="admin-empty">
+                    <p>No submissions yet.</p>
+                </div>
+
+            <% } else { %>
+
+                <div class="admin-list">
+
+                    <% submissions.forEach(submission => { %>
+
+                        <% const isLive = submission.status === "approved" && submission.publishedTestimonial && submission.publishedTestimonial.active; %>
+
+                        <div class="admin-row">
+
+                            <div class="admin-row-main">
+
+                                <div class="admin-row-title">
+                                    <%= submission.name %>
+
+                                    <% if (submission.status === "pending") { %>
+                                        <span class="badge badge-pending">Pending Review</span>
+                                    <% } else if (submission.status === "approved" && isLive) { %>
+                                        <span class="badge badge-live">Live on Site</span>
+                                    <% } else if (submission.status === "approved") { %>
+                                        <span class="badge badge-inactive">Approved, Not Live</span>
+                                    <% } else { %>
+                                        <span class="badge badge-rejected">Rejected</span>
+                                    <% } %>
+                                </div>
+
+                                <div class="admin-row-meta">
+                                    Submitted <span data-datetime="<%= submission.createdAt.toISOString() %>" data-format="date-short">
+                                        <%= submission.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) %>
+                                    </span>
+                                    — <%= submission.draftText.substring(0,120) %><% if (submission.draftText.length > 120) { %>...<% } %>
+                                </div>
+
+                            </div>
+
+                            <div class="admin-row-actions">
+
+                                <a class="button button-sm" href="/admin/testimonial-submissions/<%= submission._id %>">
+                                    Review
+                                </a>
+
+                                <form
+                                    method="POST"
+                                    action="/admin/testimonial-submissions/<%= submission._id %>/delete"
+                                    onsubmit="return confirm(<%= isLive ? "'Delete this submission? The testimonial it published is already live on your site and will stay there — this only removes the submission record.'" : "'Delete this submission?'" %>);">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <button class="button button-danger button-sm">
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    <% }) %>
+
+                </div>
+
+            <% } %>
+
+        </main>
+
+    </div>
+
+    <script src="/js/localizeDates.js"></script>
+
+</body>
+
+</html>

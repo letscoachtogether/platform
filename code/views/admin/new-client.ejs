@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Add Client</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+    <%- include("../partials/dashboard-nav") %>
+
+<section class="admin-page" style="max-width:700px;">
+
+    <a class="button button-secondary button-sm" href="/admin/clients">← Back to Clients</a>
+
+    <br><br>
+
+    <% if (error) { %>
+        <div class="banner banner-error">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <form method="POST" action="/admin/clients/new">
+
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+        <div class="card worksheet-question">
+
+            <p>
+                Creates a client account directly — no payment involved. They'll get an
+                email to set their own password, and land in the same "choose your
+                weekly session time" state a paying client would.
+            </p>
+
+            <p>Legal First Name</p>
+
+            <input type="text" name="firstName" required>
+
+            <p>Legal Last Name</p>
+
+            <input type="text" name="lastName" required>
+
+            <p>Preferred Name <span style="font-weight:normal;">(optional — defaults to first name)</span></p>
+
+            <input type="text" name="preferredName">
+
+            <p>Pronouns <span style="font-weight:normal;">(optional)</span></p>
+
+            <input type="text" name="pronouns" placeholder="e.g. she/her, he/him, they/them">
+
+            <p>Email</p>
+
+            <input type="email" name="email" required>
+
+            <p>Offering</p>
+
+            <select name="offeringId" required>
+
+                <option value="" disabled selected>Select an offering</option>
+
+                <% offerings.forEach(offering => { %>
+
+                    <option value="<%= offering._id %>">
+                        <%= offering.name %> — <%= offering.sessionCount %> session<%= offering.sessionCount === 1 ? "" : "s" %>
+                    </option>
+
+                <% }) %>
+
+            </select>
+
+            <p style="margin-top:8px; font-size:0.85rem; color:var(--muted, #6c746d);">
+                Determines the number of sessions and the Cal.com event type this client's coaching container gets — no charge is made.
+            </p>
+
+            <br><br>
+
+            <button class="button" type="submit">
+                Create Client
+            </button>
+
+        </div>
+
+    </form>
+
+</section>
+
+</body>
+
+</html>

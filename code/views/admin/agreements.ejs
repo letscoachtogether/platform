@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Agreements</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+
+    <%- include("../partials/dashboard-nav") %>
+
+    <div class="dashboard-layout">
+
+        <%- include("partials/admin-sidebar", { currentPage: "agreements" }) %>
+
+        <main class="dashboard-main">
+
+            <div class="admin-page-header">
+                <div>
+                    <h1>Coaching Agreements</h1>
+                    <p>Create, edit, activate, and manage coaching agreement versions.</p>
+                </div>
+
+                <a class="button" href="/admin/agreements/new">
+                    + New Agreement
+                </a>
+            </div>
+
+            <% if (!agreements.length) { %>
+
+                <div class="admin-empty">
+                    <p>No agreements yet. Create one to get started.</p>
+                </div>
+
+            <% } else { %>
+
+                <div class="admin-list">
+
+                    <% agreements.forEach(agreement => { %>
+
+                        <div class="admin-row">
+
+                            <div class="admin-row-main">
+
+                                <div class="admin-row-title">
+                                    <%= agreement.version %>
+                                    <span class="badge <%= agreement.active ? 'badge-active' : 'badge-inactive' %>">
+                                        <%= agreement.active ? "Active" : "Inactive" %>
+                                    </span>
+                                </div>
+
+                                <div class="admin-row-meta">
+                                    <%= agreement.sections.length %> section<%= agreement.sections.length === 1 ? "" : "s" %>
+                                </div>
+
+                            </div>
+
+                            <div class="admin-row-actions">
+
+                                <a class="button button-secondary button-sm" href="/admin/agreements/<%= agreement._id %>/edit">
+                                    Edit
+                                </a>
+
+                                <form method="POST" action="/admin/agreements/<%= agreement._id %>/toggle">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <button class="button button-secondary button-sm">
+                                        <%= agreement.active ? "Deactivate" : "Activate" %>
+                                    </button>
+                                </form>
+
+                                <form method="POST" action="/admin/agreements/<%= agreement._id %>/delete"
+                                    onsubmit="return confirm('Delete this agreement?')">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <button class="button button-danger button-sm">
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    <% }) %>
+
+                </div>
+
+            <% } %>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

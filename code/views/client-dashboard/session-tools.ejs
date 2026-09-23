@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Session Tools</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+</head>
+
+
+<body>
+
+
+    <nav class="top-nav">
+        <a class="logo" href="/client-dashboard/main">
+            <%= site.businessName %>
+        </a>
+    </nav>
+
+
+
+    <section class="container" style="margin-top:150px;">
+
+        <h1>Session Tools</h1>
+
+        <% if (requestedTools.length === 0) { %>
+
+            <p>No tools have been requested for this session yet.</p>
+
+        <% } else { %>
+
+            <% requestedTools.forEach(t => { %>
+
+                <div class="card worksheet-question">
+
+                    <h3><%= t.resource.title %></h3>
+
+                    <% if (t.resource.summary) { %>
+                        <p><%= t.resource.summary %></p>
+                    <% } %>
+
+                    <% if (t.unlocked) { %>
+
+                        <a class="button button-secondary"
+                            href="/client-dashboard/resources/<%= t.resource.slug %>">
+                            View Tool
+                        </a>
+
+                    <% } else { %>
+
+                        <p style="color: var(--muted);">Requested — waiting on your coach.</p>
+
+                    <% } %>
+
+                </div>
+
+            <% }) %>
+
+        <% } %>
+
+        <% if (status === "upcoming") { %>
+
+            <h2 style="margin-top:36px;">Request a Tool</h2>
+
+            <% if (availableResources.length === 0) { %>
+
+                <p>Nothing left to request — you've asked for everything available.</p>
+
+            <% } else { %>
+
+                <% availableResources.forEach(resource => { %>
+
+                    <div class="card worksheet-question">
+
+                        <h3><%= resource.title %></h3>
+
+                        <% if (resource.summary) { %>
+                            <p><%= resource.summary %></p>
+                        <% } %>
+
+                        <form method="POST" action="/client-dashboard/sessions/<%= bookingUid %>/tools">
+
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <input type="hidden" name="resourceId" value="<%= resource._id %>">
+
+                            <button class="button primary">
+                                Request
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                <% }) %>
+
+            <% } %>
+
+        <% } %>
+
+        <div style="margin-top: 32px; text-align: center">
+            <a class="button" href="/client-dashboard/sessions">Back to Sessions</a>
+        </div>
+
+    </section>
+
+    <script src="/js/localizeDates.js"></script>
+
+</body>
+
+</html>

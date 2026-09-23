@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | <%= site.businessName %></title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+
+<body>
+    <!-- Top Navigation -->
+    <%- include("../partials/dashboard-nav") %>
+
+        <div class="dashboard-layout">
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+
+                <div class="sidebar-title">
+                    Client Portal
+                </div>
+
+                <nav class="sidebar-nav">
+
+                    <a href="/client-dashboard/main" class="sidebar-link">
+                        Dashboard
+                    </a>
+
+                    <a href="/client-dashboard/resources" class="sidebar-link">
+                        Resources
+                    </a>
+
+                    <a href="/client-dashboard/sessions" class="sidebar-link">
+                        Sessions
+                    </a>
+
+                    <a href="/client-dashboard/profile" class="sidebar-link active">
+                        Profile
+                    </a>
+
+                </nav>
+
+            </aside>
+
+            <!-- Main -->
+            <main class="dashboard-main">
+
+                <div class="dashboard-header">
+
+                    <h1>
+                        Profile
+                    </h1>
+
+                    <p>
+                        Manage your account settings and coaching information.
+                    </p>
+
+                </div>
+
+                <% const successMessages = {
+                    profile: "Your profile was updated.",
+                    password: "Your password was changed.",
+                    email: "Your email was updated.",
+                    notifications: "Your notification preferences were saved."
+                }; %>
+
+                <% if (success && successMessages[success]) { %>
+                    <div class="banner banner-success">
+                        <%= successMessages[success] %>
+                    </div>
+                <% } %>
+
+                <% if (error) { %>
+                    <div class="banner banner-error">
+                        <%= error %>
+                    </div>
+                <% } %>
+
+                <!-- Account Info -->
+                <div class="dashboard-card">
+
+                    <h2>
+                        Account Information
+                    </h2>
+
+                    <div class="profile-group">
+
+                        <div class="profile-item">
+                            <label>Email</label>
+                            <p>
+                                <%= user.email %>
+                            </p>
+                        </div>
+
+                        <div class="profile-item">
+                            <label>Member Since</label>
+                            <p>
+                                <span data-datetime="<%= new Date(user.createdAt).toISOString() %>" data-format="date">
+                                    <%= new Date(user.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) %>
+                                </span>
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Billing -->
+                <div class="dashboard-card">
+
+                    <h2>
+                        Billing
+                    </h2>
+
+                    <% if (!billingContainer) { %>
+
+                        <p class="muted">You don't have an active subscription to manage.</p>
+
+                    <% } else if (!billing) { %>
+
+                        <p class="muted">Unable to load your billing details right now. Please try again shortly, or contact your coach if this continues.</p>
+
+                    <% } else { %>
+
+                        <div class="profile-group">
+
+                            <div class="profile-item">
+                                <label>Price</label>
+                                <p>
+                                    <%= (billing.amount / 100).toLocaleString("en-US", { style: "currency", currency: billing.currency.toUpperCase() }) %>
+                                    / <%= billing.intervalCount > 1 ? `${billing.intervalCount} ${billing.interval}s` : billing.interval %>
+                                </p>
+                            </div>
+
+                            <% if (billing.cancelAtPeriodEnd) { %>
+
+                                <div class="profile-item">
+                                    <label>Subscription Ending</label>
+                                    <p style="color:#b91c1c;">
+                                        <span data-datetime="<%= billing.currentPeriodEnd.toISOString() %>" data-format="date-short">
+                                            <%= billing.currentPeriodEnd.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) %>
+                                        </span>. You won't be charged again after that.
+                                    </p>
+                                </div>
+
+                            <% } else { %>
+
+                                <div class="profile-item">
+                                    <label>Next Billing Date</label>
+                                    <p>
+                                        <span data-datetime="<%= billing.currentPeriodEnd.toISOString() %>" data-format="date-short">
+                                            <%= billing.currentPeriodEnd.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) %>
+                                        </span>
+                                    </p>
+                                </div>
+
+                            <% } %>
+
+                        </div>
+
+                        <% if (!billing.cancelAtPeriodEnd) { %>
+
+                            <p class="muted" style="margin:16px 0;">
+                                Cancelling within <%= cancellationNoticeDays %> days of your next billing date still results
+                                in one final charge for that upcoming cycle before it ends.
+                            </p>
+
+                            <form method="POST" action="/client-dashboard/billing/cancel"
+                                onsubmit="return confirm('Cancel your subscription? Depending on your next billing date, you may still be charged once more before it ends.');">
+
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                                <div class="form-actions">
+                                    <button type="submit" class="button button-danger">
+                                        Cancel My Subscription
+                                    </button>
+                                </div>
+
+                            </form>
+
+                        <% } %>
+
+                    <% } %>
+
+                </div>
+
+                <!-- Edit Profile -->
+                <div class="dashboard-card">
+
+                    <h2>
+                        Edit Profile
+                    </h2>
+
+                    <form method="POST" action="/client-dashboard/profile">
+
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                        <div class="form-group">
+                            <label for="firstName">Legal First Name</label>
+                            <input type="text" id="firstName" name="firstName" value="<%= user.firstName %>" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lastName">Legal Last Name</label>
+                            <input type="text" id="lastName" name="lastName" value="<%= user.lastName %>" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="preferredName">Preferred Name</label>
+                            <input type="text" id="preferredName" name="preferredName" value="<%= user.preferredName || '' %>" placeholder="What should we call you?">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pronouns">Pronouns</label>
+                            <input type="text" id="pronouns" name="pronouns" value="<%= user.pronouns || '' %>" placeholder="e.g. she/her, he/him, they/them">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="button">Save Changes</button>
+                        </div>
+
+                    </form>
+
+                </div>
+
+                <!-- Change Password -->
+                <div class="dashboard-card">
+
+                    <h2>
+                        Change Password
+                    </h2>
+
+                    <form method="POST" action="/client-dashboard/profile/password">
+
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" name="currentPassword" autocomplete="current-password" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" name="newPassword" autocomplete="new-password" required>
+                            <p class="muted" style="margin-top:6px;">
+                                At least 8 characters, with an uppercase letter, a lowercase letter, a number, and a special character.
+                            </p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmNewPassword">Confirm New Password</label>
+                            <input type="password" id="confirmNewPassword" name="confirmNewPassword" autocomplete="new-password" required>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="button">Change Password</button>
+                        </div>
+
+                    </form>
+
+                </div>
+
+                <!-- Change Email -->
+                <div class="dashboard-card">
+
+                    <h2>
+                        Change Login Email
+                    </h2>
+
+                    <p class="muted" style="margin-bottom:16px;">
+                        This is the email you use to sign in — a confirmation is sent to your current email whenever it changes.
+                    </p>
+
+                    <form method="POST" action="/client-dashboard/profile/email">
+
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                        <div class="form-group">
+                            <label for="emailCurrentPassword">Current Password</label>
+                            <input type="password" id="emailCurrentPassword" name="currentPassword" autocomplete="current-password" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newEmail">New Email</label>
+                            <input type="email" id="newEmail" name="newEmail" autocomplete="email" required>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="button">Change Email</button>
+                        </div>
+
+                    </form>
+
+                </div>
+
+                <!-- Notification Preferences -->
+                <div class="dashboard-card">
+
+                    <h2>
+                        Notification Preferences
+                    </h2>
+
+                    <p class="muted" style="margin-bottom:16px;">
+                        Choose which emails you'd like to receive. You'll still see everything in your dashboard either way.
+                    </p>
+
+                    <form method="POST" action="/client-dashboard/profile/notifications">
+
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                        <div class="admin-list">
+
+                            <label class="admin-row" style="cursor:pointer;">
+                                <div class="admin-row-main">
+                                    <div class="admin-row-title">Session Reminders</div>
+                                    <div class="admin-row-meta">A reminder email about a day before each upcoming session.</div>
+                                </div>
+                                <div class="admin-row-actions">
+                                    <input type="checkbox" name="sessionReminders" <%= user.notificationPreferences?.sessionReminders !== false ? "checked" : "" %>>
+                                </div>
+                            </label>
+
+                            <label class="admin-row" style="cursor:pointer;">
+                                <div class="admin-row-main">
+                                    <div class="admin-row-title">Session Notes Posted</div>
+                                    <div class="admin-row-meta">When notes from a session are added to your dashboard.</div>
+                                </div>
+                                <div class="admin-row-actions">
+                                    <input type="checkbox" name="sessionNotesPosted" <%= user.notificationPreferences?.sessionNotesPosted !== false ? "checked" : "" %>>
+                                </div>
+                            </label>
+
+                            <label class="admin-row" style="cursor:pointer;">
+                                <div class="admin-row-main">
+                                    <div class="admin-row-title">New Tool Added</div>
+                                    <div class="admin-row-meta">When a new tool is published to your Resources tab.</div>
+                                </div>
+                                <div class="admin-row-actions">
+                                    <input type="checkbox" name="newToolAdded" <%= user.notificationPreferences?.newToolAdded !== false ? "checked" : "" %>>
+                                </div>
+                            </label>
+
+                            <label class="admin-row" style="cursor:pointer;">
+                                <div class="admin-row-main">
+                                    <div class="admin-row-title">Testimonial Reviewed</div>
+                                    <div class="admin-row-meta">When a testimonial you submitted has been reviewed.</div>
+                                </div>
+                                <div class="admin-row-actions">
+                                    <input type="checkbox" name="testimonialReviewed" <%= user.notificationPreferences?.testimonialReviewed !== false ? "checked" : "" %>>
+                                </div>
+                            </label>
+
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="button">Save Preferences</button>
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </main>
+
+        </div>
+
+<script src="/js/localizeDates.js"></script>
+
+</body>
+
+</html>

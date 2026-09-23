@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sign Coaching Agreement</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+    <%- include("partials/dashboard-nav") %>
+    <div class="admin-page" style="max-width:800px;">
+
+        <div class="admin-page-header">
+            <div>
+                <h1>Coaching Agreement</h1>
+                <p>Please review and accept the agreement for <%= offeringName %> before continuing to your dashboard.</p>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+
+            <% sections.forEach(section => { %>
+
+                <section style="margin-bottom:24px;">
+
+                    <h2 style="margin-top:0;">
+                        <%= section.title %>
+                    </h2>
+
+                    <div>
+                        <%- section.content %>
+                    </div>
+
+                </section>
+
+            <% }) %>
+
+            <form method="POST" action="/sign-agreement">
+
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                <label style="display:flex; align-items:flex-start; gap:10px; margin-top:20px;">
+
+                    <input type="checkbox" name="agreementAccepted" value="true" required>
+
+                    <span>
+                        I have read and agree to the Coaching Agreement above.
+                        By checking this box and continuing, I acknowledge that my electronic acceptance
+                        constitutes my agreement to it.
+                    </span>
+
+                </label>
+
+                <% if (error) { %>
+                    <p style="color:#c62828; margin-top:12px;">
+                        <%= error %>
+                    </p>
+                <% } %>
+
+                <div class="dashboard-actions">
+                    <button type="submit" class="button">
+                        Agree & Continue
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

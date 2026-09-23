@@ -1,0 +1,116 @@
+<% const isEdit=typeof offering !=="undefined" ; const action=isEdit ? `/admin/offerings/${offering._id}/edit`
+    : "/admin/offerings/new" ; %>
+
+    <form method="POST" action="<%= action %>">
+
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+        <div class="card worksheet-question">
+
+            <p>Name</p>
+
+            <input type="text" name="name" value="<%= isEdit ? offering.name : '' %>" required>
+
+            <p>Best For</p>
+
+            <textarea name="bestFor" required><%= isEdit ? offering.bestFor : '' %></textarea>
+
+            <p>Description</p>
+
+            <textarea name="description" required><%= isEdit ? offering.description : '' %></textarea>
+
+            <p>Duration</p>
+
+            <input type="text" name="duration" placeholder="3 Months" value="<%= isEdit ? offering.duration : '' %>"
+                required>
+
+            <p>Number of Sessions</p>
+
+            <input type="number" name="sessionCount" value="<%= isEdit ? offering.sessionCount : '' %>" required>
+
+            <p>Session Length (minutes)</p>
+
+            <input type="number" name="sessionLength" value="<%= isEdit ? offering.sessionLength : '' %>" required>
+
+            <p>Payment Mode</p>
+
+            <select name="mode">
+
+                <option value="payment" <%=!isEdit || offering.mode==="payment" ? "selected" : "" %>>
+                    Payment
+                </option>
+
+                <option value="subscription" <%=isEdit && offering.mode==="subscription" ? "selected" : "" %>>
+                    Subscription
+                </option>
+
+            </select>
+
+            <p>Price</p>
+
+            <input type="number" step="0.01" name="price" value="<%= isEdit ? offering.price : '' %>" required>
+
+            <p>Stripe Price ID</p>
+
+            <input type="text" name="priceId" value="<%= isEdit ? offering.priceId : '' %>" required>
+
+            <p>Cancellation Notice (days) — subscription offerings only. A client cancelling within this many days of
+                their next billing date is still charged for that upcoming cycle.</p>
+
+            <input type="number" name="cancellationNoticeDays" min="0"
+                value="<%= isEdit ? offering.cancellationNoticeDays : 14 %>">
+
+            <p>Cal.com Event Type ID</p>
+
+            <input type="number" name="eventTypeId" value="<%= isEdit ? offering.eventTypeId : '' %>" required>
+
+            <p>Agreement</p>
+
+            <select name="agreement" required>
+
+                <% agreements.forEach(agreement=> { %>
+
+                    <option value="<%= agreement._id %>" <%=isEdit && offering.agreement &&
+                        offering.agreement.toString()===agreement._id.toString() ? "selected" : "" %>>
+
+                        <%= agreement.version %>
+
+                    </option>
+
+                    <% }) %>
+
+            </select>
+
+            <p>Spots Remaining</p>
+
+            <input type="number" name="spotsRemaining" value="<%= isEdit ? offering.spotsRemaining : 0 %>">
+
+            <% if (isEdit) { %>
+
+                <p>Active</p>
+
+                <select name="active">
+
+                    <option value="true" <%=offering.active ? "selected" : "" %>>
+                        Active
+                    </option>
+
+                    <option value="false" <%=!offering.active ? "selected" : "" %>>
+                        Inactive
+                    </option>
+
+                </select>
+
+                <% } %>
+
+                    <br><br>
+
+                    <button class="button" type="submit">
+
+                        <%= isEdit ? "Save Changes" : "Create Offering" %>
+
+                    </button>
+
+        </div>
+
+    </form>

@@ -1,0 +1,1102 @@
+/* =========================
+   Global
+========================= */
+
+@import url("button.css");
+/* @import url("style.css"); */
+
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    background: #f8fafc;
+    color: #111827;
+    line-height: 1.7;
+}
+
+/* Unlike style.css (the public site), this file never reset the browser's
+   default <a> styling — so every tile/card built as an <a> (testimonial,
+   referral, add-sessions, etc.) fell back to the browser's default
+   underline + blue/visited link color. A few spots worked around it with
+   an inline style; this covers all of them at once instead. */
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+:root {
+
+    /* Colors */
+    --bg: #f6f5f2;
+    --surface: rgba(255, 255, 255, 0.82);
+    --soft: #efede7;
+  
+    --text: #2f352f;
+    --muted: #6c746d;
+    --deep: #708c74;
+    --gold: #C8A86A;
+  
+    --border: rgba(40, 50, 40, 0.08);
+  
+    /* Shadows */
+    --shadow-sm:
+      0 1px 2px rgba(0, 0, 0, 0.03);
+  
+    --shadow-md:
+      0 8px 20px rgba(20, 30, 20, 0.05);
+  
+    --shadow-lg:
+      0 16px 36px rgba(20, 30, 20, 0.07);
+  
+    /* Radius */
+    --radius-sm: 14px;
+    --radius-md: 22px;
+    --radius-lg: 36px;
+  
+    /* Layout */
+    --container: 1150px;
+  
+    /* Timing */
+    --transition:
+      180ms ease;
+
+      --primary: #0f766e;
+      --primary-light: #f0fdfa;
+      
+  }
+
+/* =========================
+   Top Navigation
+========================= */
+nav.top-nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 70px;
+    padding: 0 20px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #eee;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-sizing: border-box;
+    z-index: 1000;
+}
+
+nav.top-nav .logo {
+    position: absolute;
+    left: 30px;
+
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 17px;
+    text-transform: uppercase;
+    color: #0f766e;
+    letter-spacing: 1.5px;
+
+    white-space: nowrap;
+
+    transition: opacity 0.2s ease;
+}
+
+nav.top-nav .logo:hover {
+    opacity: 0.8;
+}
+
+nav.top-nav .logo::after {
+    content: "Client Portal";
+
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: none;
+    color: #94a3b8;
+
+    border-left: 1px solid #e2e8f0;
+    padding-left: 8px;
+}
+
+/* Same badge, different label — this partial is shared between client and
+   admin views (see partials/dashboard-nav.ejs), and the plain rule above
+   was showing "Client Portal" even on admin pages. */
+nav.top-nav-admin .logo::after {
+    content: "Admin Panel";
+}
+
+/* The markup here is a single <a class="logout">, not a wrapper with a
+   nested link — the old rules styled a nonexistent ".logout a" descendant,
+   so nothing but "position/display" ever actually applied and the link
+   rendered in the browser's default blue. */
+nav.top-nav .logout {
+    position: absolute;
+    right: 30px;
+
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 13px;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: 1px;
+
+    white-space: nowrap;
+
+    transition: color 0.2s ease;
+}
+
+nav.top-nav .logout:hover {
+    color: #0f766e;
+}
+
+/* =========================
+   Layout
+========================= */
+.dashboard-layout {
+    display: flex;
+    min-height: 100vh;
+    padding-top: 70px; /* offset for top nav */
+}
+
+/* =========================
+   Sidebar
+========================= */
+.sidebar {
+    width: 260px;
+    background: #fff;
+    border-right: 1px solid #e5e7eb;
+    padding: 32px 20px;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    position: fixed;
+    top: 70px; /* below top nav */
+    bottom: 0;
+    left: 0;
+    font-family: "Inter", sans-serif;
+}
+
+.sidebar-title {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #94a3b8;
+    margin-bottom: 16px;
+    font-family: "Inter", sans-serif;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar-link {
+    display: block;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 15px;
+    color: #0f172a;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.sidebar-link:hover {
+    background: #f1f5f9;
+}
+
+.sidebar-link.active {
+    background: #d9eeea;
+    color: #0f766e;
+}
+
+/* =========================
+   Main Dashboard Content
+========================= */
+.dashboard-main {
+    margin-left: 260px; /* same width as sidebar */
+    flex: 1;
+    padding: 40px;
+    background: #f8fafc;
+}
+
+.dashboard-header {
+    /* margin-left: 260px; same width as sidebar */
+    /* flex: 1; */
+    padding-bottom: 40px;
+    /* background: #f8fafc; */
+}
+
+/* =========================
+   Sidebar-less admin pages
+   (single-item forms, drill-down detail views reached from a list page —
+   these intentionally skip the sidebar to keep focus on the task; this
+   just offsets them below the fixed top nav and centers the content)
+========================= */
+.admin-page {
+    padding-top: 110px;
+    padding-bottom: 60px;
+    max-width: 900px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+/* =========================
+   Cards
+========================= */
+.dashboard-card {
+    background: #fff;
+    border-radius: 12px;
+    /* width: 35%; */
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.status-card {
+    border: 2px solid #99f6e4;
+    background: #f0fdfa;
+}
+
+.status-label {
+    display: inline-block;
+    margin-bottom: 16px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #ccfbf1;
+    color: #0f766e;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.status-card h2 {
+    margin-bottom: 14px;
+    font-size: 30px;
+}
+
+.status-card p {
+    color: #475569;
+}
+
+/* =========================
+   Progress Bars
+========================= */
+.progress-wrap {
+    margin-top: 24px;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #e2e8f0;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 25%;
+    background: #0f766e;
+    border-radius: 999px;
+}
+
+/* =========================
+   Buttons
+========================= */
+.dashboard-actions {
+    margin-top: 26px;
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+/* =========================
+   Admin: status badges
+========================= */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+}
+
+.badge::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.badge-active,
+.badge-live {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.badge-inactive {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.badge-pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.badge-rejected {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* =========================
+   Admin: list rows
+========================= */
+.admin-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.admin-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 18px 22px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-row:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.admin-row-main {
+    flex: 1;
+    min-width: 220px;
+}
+
+.admin-row-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.admin-row-meta {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.admin-row-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.admin-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #64748b;
+    background: #fff;
+    border: 1px dashed #cbd5e1;
+    border-radius: 14px;
+}
+
+.admin-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+}
+
+.admin-page-header p {
+    color: #64748b;
+    margin-top: 6px;
+    max-width: 640px;
+}
+
+/* =========================
+   Grid
+========================= */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+/* =========================
+   Responsive
+========================= */
+@media (max-width: 768px) {
+    .sidebar {
+        position: relative;
+        width: 100%;
+        top: 0;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 10px;
+    }
+    .sidebar-title {
+        display: none;
+    }
+    .sidebar-link {
+        white-space: nowrap;
+        margin-right: 8px;
+    }
+    .dashboard-main {
+        margin-left: 0;
+        padding: 20px;
+    }
+}
+
+/* Profile */
+.profile-group {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.profile-item label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.profile-item p {
+    font-size: 16px;
+    color: #0f172a;
+}
+
+.muted {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.form-group input {
+    padding: 12px 14px;
+}
+
+.form-actions {
+    margin-top: 8px;
+}
+
+.banner {
+    padding: 14px 18px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.banner-success {
+    background: rgba(112, 140, 116, 0.12);
+    color: var(--deep);
+    border: 1px solid rgba(112, 140, 116, 0.3);
+}
+
+.banner-error {
+    background: rgba(198, 40, 40, 0.08);
+    color: #c62828;
+    border: 1px solid rgba(198, 40, 40, 0.25);
+}
+
+/* =========================
+   Worksheet Inputs
+========================= */
+
+input {
+    display: block;
+
+    width: 100%;
+    padding: 18px 20px;
+
+    font-family: inherit;
+    font-size: 1rem;
+
+    color: var(--text);
+
+    background: rgba(255,255,255,0.9);
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+
+    box-shadow: var(--shadow-sm);
+
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition);
+}
+
+/* The rule above (100% width, heavy padding) is meant for text/password/
+   email fields — applied unscoped, it also caught checkboxes (e.g.
+   admin/notifications.ejs and the client notification preferences page),
+   rendering them as full-width padded boxes instead of a normal checkbox. */
+input[type="checkbox"] {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    flex: none;
+    box-shadow: none;
+}
+
+
+input:focus {
+    outline: none;
+
+    border-color: var(--deep);
+
+    box-shadow:
+        0 0 0 3px rgba(112,140,116,0.15);
+}
+
+.worksheet-form {
+    width: 100%;
+}
+
+.worksheet-question label {
+    display: block;
+    margin-bottom: 12px;
+
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.worksheet-question p {
+    margin-bottom: 16px;
+    color: var(--muted);
+}
+
+.card {
+    position: relative;
+  
+    padding: 34px;
+  
+    border-radius: var(--radius-md);
+  
+    background: var(--surface);
+  
+    backdrop-filter: blur(12px);
+  
+    border: 1px solid var(--border);
+  
+    box-shadow: var(--shadow-md);
+  
+    overflow: hidden;
+  
+    transition:
+      border-color var(--transition),
+      box-shadow var(--transition),
+      background var(--transition);
+  }
+  
+  
+  .card:hover {
+    border-color:
+      rgba(112, 140, 116, 0.16);
+  
+    background:
+      rgba(255, 255, 255, 0.9);
+  
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .card h3 {
+    margin-bottom: 14px;
+  }
+  
+  .card p {
+    margin-bottom: 0;
+  }
+
+h1,
+h2,
+h3,
+h4 {
+  margin-top: 0;
+
+  color: var(--text);
+
+  letter-spacing: -0.02em;
+  line-height: 1.18;
+}
+
+h1 {
+  font-size: clamp(2.5rem, 4vw, 4.8rem);
+  font-weight: 400;
+
+  max-width: 14ch;
+}
+
+h2 {
+  font-size: clamp(1.9rem, 3vw, 3rem);
+  font-weight: 400;
+
+  margin-bottom: 22px;
+}
+
+h3 {
+  font-size: 1.35rem;
+  font-weight: 400;
+
+  margin-bottom: 14px;
+}
+
+p {
+  margin-top: 0;
+
+  color: var(--muted);
+
+  font-size: 1.02rem;
+  line-height: 1.95;
+
+  /* max-width: 68ch; */
+}
+
+/* .subtitle {
+  display: inline-block;
+
+  margin-bottom: 18px;
+
+  font-size: 0.82rem;
+  font-weight: 500;
+
+  letter-spacing: 0.08em;
+  text-transform: none;
+
+  color: var(--muted);
+} */
+
+
+.tool {
+    display: block;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: #f8fafc;
+    text-decoration: none;
+    color: #0f172a;
+    transition: all 0.2s ease;
+    border: 1px solid #e5e7eb;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+}
+
+.close {
+    float: right;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.tool:hover {
+    background: #ecfeff;
+    border-color: #99f6e4;
+    color: #0f766e;
+}
+
+/* Worksheet textarea override */
+
+.worksheet-question textarea {
+    display: block;
+
+    width: 100%;
+    min-height: 220px;
+
+    padding: 18px 20px;
+
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.6;
+
+    color: var(--text);
+    background: white;
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+
+    resize: vertical;
+
+    box-shadow: var(--shadow-sm);
+
+    transition: 
+        border-color var(--transition),
+        box-shadow var(--transition);
+}
+
+
+.worksheet-question textarea:focus {
+    outline: none;
+
+    border-color: var(--deep);
+
+    box-shadow:
+        0 0 0 3px rgba(112,140,116,0.15);
+}
+
+.worksheet-question input[type="text"] {
+    display: block;
+
+    width: 100%;
+
+    padding: 14px 20px;
+
+    font-family: inherit;
+    font-size: 1rem;
+
+    color: var(--text);
+    background: white;
+
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+
+    box-shadow: var(--shadow-sm);
+
+    transition:
+        border-color var(--transition),
+        box-shadow var(--transition);
+}
+
+.worksheet-question input[type="text"]:focus {
+    outline: none;
+
+    border-color: var(--deep);
+
+    box-shadow:
+        0 0 0 3px rgba(112,140,116,0.15);
+}
+
+.weekday-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 24px;
+}
+
+.weekday-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.weekday-column h3 {
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.time-button {
+    display: block;
+}
+
+.time-button input {
+    display: none;
+}
+
+.time-button span {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+
+    border-radius: 12px;
+    border: 1px solid var(--border);
+
+    background: white;
+    color: var(--text);
+
+    text-align: center;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition:
+        background .2s,
+        border-color .2s,
+        color .2s,
+        transform .15s;
+}
+
+.time-button span:hover {
+    background: var(--primary-light);
+    border-color: #99f6e4;
+    color: var(--primary);
+}
+
+.time-button input:checked + span {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.time-button span:active {
+    transform: scale(.98);
+}
+
+/* =========================
+   Sessions
+========================= */
+
+.next-session {
+    border: 2px solid #99f6e4;
+    background: linear-gradient(
+        135deg,
+        #f0fdfa,
+        #ffffff
+    );
+}
+
+.dashboard-badge {
+    display: inline-block;
+
+    margin-bottom: 14px;
+
+    padding: 6px 12px;
+
+    border-radius: 999px;
+
+    background: #ccfbf1;
+    color: #0f766e;
+
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.session-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 28px;
+}
+
+.session-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 30px;
+
+    padding: 22px 26px;
+
+    border-radius: 16px;
+
+    background: white;
+
+    border: 1px solid #e5e7eb;
+
+    box-shadow: var(--shadow-sm);
+}
+
+.session-left h3 {
+    margin-bottom: 8px;
+}
+
+.session-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+
+    margin-top: 10px;
+
+    color: var(--muted);
+    font-size: .95rem;
+}
+
+.session-right {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+/* .sessions-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 32px;
+    align-items: start;
+}
+
+
+.sessions-main-column {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+
+.upcoming-panel {
+    background: white;
+    border-radius: 24px;
+    padding: 28px;
+}
+
+.upcoming-session:last-child {
+    border-bottom: none;
+} */
+
+.sessions-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 32px;
+    align-items: start;
+}
+
+
+.upcoming-panel {
+    background: white;
+    border-radius: 24px;
+    padding: 28px;
+}
+
+
+.upcoming-session {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 0;
+    border-bottom: 1px solid #eee;
+}
+
+
+.upcoming-session:last-child {
+    border-bottom: none;
+}
+
+.subtitle {
+    display: inline-block;
+    font-family: "Inter", sans-serif;
+  
+    margin-bottom: 18px;
+  
+    font-size: 1 rem;
+    font-weight: 500;
+  
+    letter-spacing: 0.08em;
+    text-transform: none;
+  
+    color: var(--muted);
+  }
+
+  /* =========================
+   Admin Tables
+========================= */
+
+.admin-table-wrapper {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 24px;
+    font-size: 0.95rem;
+}
+
+.admin-table thead {
+    background: #f8fafc;
+}
+
+.admin-table th {
+    padding: 16px 18px;
+
+    text-align: left;
+
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+
+    color: var(--muted);
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.admin-table td {
+    padding: 18px;
+
+    border-bottom: 1px solid #eef2f7;
+
+    color: var(--text);
+
+    vertical-align: middle;
+}
+
+.admin-table tbody tr {
+    transition: background var(--transition);
+}
+
+.admin-table tbody tr:hover {
+    background: rgba(112, 140, 116, 0.05);
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}

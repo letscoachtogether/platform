@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Session Notes</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+    <style>
+        .note-section textarea {
+            display: block;
+            width: 100%;
+            min-height: 200px;
+            padding: 14px 20px;
+            font-family: inherit;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text);
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            resize: vertical;
+        }
+        .note-section textarea:focus {
+            outline: none;
+            border-color: var(--deep);
+            box-shadow: 0 0 0 3px rgba(112,140,116,0.15);
+        }
+    </style>
+
+</head>
+
+<body>
+    <%- include("../partials/dashboard-nav") %>
+    <div class="admin-page" style="max-width:800px;">
+
+        <a class="button button-secondary button-sm" href="/admin/sessions">← Back to Sessions</a>
+
+        <div class="admin-page-header" style="margin-top:20px;">
+            <div>
+                <h1>
+                    <% if (client) { %>
+                        Session Notes — <%= client.preferredName || client.firstName %> <%= client.lastName %>
+                    <% } else { %>
+                        Session Notes
+                    <% } %>
+                </h1>
+                <p>
+                    <% if (sessionStart) { %>
+                        <span data-datetime="<%= new Date(sessionStart).toISOString() %>" data-format="datetime">
+                            <%= new Date(sessionStart).toLocaleString("en-US", {
+                                weekday: "long", month: "long", day: "numeric", year: "numeric",
+                                hour: "numeric", minute: "2-digit"
+                            }) %>
+                        </span>
+                    <% } else { %>
+                        Booking <%= session.bookingUid %>
+                    <% } %>
+                </p>
+            </div>
+        </div>
+
+        <% if (requestedTools.length > 0) { %>
+
+            <div class="dashboard-card" style="margin-bottom:24px;">
+
+                <h2 style="margin-top:0;">Tools Requested</h2>
+
+                <div class="admin-list">
+
+                    <% requestedTools.forEach(t => { %>
+
+                        <div class="admin-row">
+
+                            <div class="admin-row-main">
+
+                                <div class="admin-row-title">
+                                    <%= t.resource.title %>
+                                    <span class="badge <%= t.unlocked ? 'badge-active' : 'badge-pending' %>">
+                                        <%= t.unlocked ? 'Unlocked' : 'Pending' %>
+                                    </span>
+                                </div>
+
+                                <div class="admin-row-meta">
+                                    Requested <span data-datetime="<%= t.requestedAt.toISOString() %>" data-format="date-short">
+                                        <%= t.requestedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) %>
+                                    </span>
+                                </div>
+
+                            </div>
+
+                            <% if (!t.unlocked) { %>
+
+                                <div class="admin-row-actions">
+
+                                    <form method="POST"
+                                        action="/admin/clients/<%= client._id %>/resources/<%= t.resource.slug %>/unlock">
+
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                                        <button class="button button-secondary button-sm">
+                                            Unlock
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            <% } %>
+
+                        </div>
+
+                    <% }) %>
+
+                </div>
+
+            </div>
+
+        <% } %>
+
+        <div class="dashboard-card">
+
+            <form method="POST" action="/admin/sessions/<%= session.bookingUid %>/notes" id="notes-form">
+
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <% if (client) { %>
+                    <input type="hidden" name="clientId" value="<%= client._id %>">
+                <% } %>
+                <% if (sessionStart) { %>
+                    <input type="hidden" name="start" value="<%= sessionStart %>">
+                <% } %>
+
+                <p style="color:#64748b; margin-bottom:20px;">
+                    Organize your notes into sections — e.g. "Wins," "Challenges," "Action Items" — with a bullet
+                    per note.
+                </p>
+
+                <div id="sections-container">
+
+                    <% sections.forEach((section, index)=> { %>
+
+                        <div class="note-section" style="margin-bottom:28px; padding-bottom:24px; border-bottom:1px solid #e5e7eb;">
+
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <input type="text" name="sections[<%= index %>][title]" value="<%= section.title || '' %>"
+                                    placeholder="Section title (e.g. Wins, Challenges, Action Items)" style="flex:1;">
+                                <button type="button" class="button button-danger button-sm" onclick="removeSection(this)">
+                                    Remove Section
+                                </button>
+                            </div>
+
+                            <div class="items-container" data-section="<%= index %>" style="margin-top:14px;">
+
+                                <% (section.items.length ? section.items : [""]).forEach((item, itemIndex)=> { %>
+
+                                    <div class="item-row" style="display:flex; align-items:flex-start; gap:10px; margin-bottom:8px;">
+                                        <div style="display:flex; flex-direction:column; gap:2px;">
+                                            <button type="button" class="button button-secondary button-sm" onclick="moveItem(this, -1)" title="Move up">↑</button>
+                                            <button type="button" class="button button-secondary button-sm" onclick="moveItem(this, 1)" title="Move down">↓</button>
+                                        </div>
+                                        <textarea name="sections[<%= index %>][items][<%= itemIndex %>]"
+                                            placeholder="Add a note..." rows="2" style="flex:1;"><%= item %></textarea>
+                                        <button type="button" class="button button-secondary button-sm" onclick="removeItem(this)">
+                                            Remove
+                                        </button>
+                                    </div>
+
+                                <% }) %>
+
+                            </div>
+
+                            <button type="button" class="button button-secondary button-sm add-item-btn" data-section="<%= index %>">
+                                + Add Note
+                            </button>
+
+                        </div>
+
+                    <% }) %>
+
+                </div>
+
+                <button type="button" id="add-section-btn" class="button button-secondary">
+                    + Add Section
+                </button>
+
+                <div class="dashboard-actions">
+                    <button type="submit" class="button">
+                        Save Notes
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+        <script>
+
+            let sectionCount = <%= sections.length %>;
+
+            function itemRowHTML(sectionIndex, itemIndex, value = "") {
+                return `
+                    <div class="item-row" style="display:flex; align-items:flex-start; gap:10px; margin-bottom:8px;">
+                        <div style="display:flex; flex-direction:column; gap:2px;">
+                            <button type="button" class="button button-secondary button-sm" onclick="moveItem(this, -1)" title="Move up">↑</button>
+                            <button type="button" class="button button-secondary button-sm" onclick="moveItem(this, 1)" title="Move down">↓</button>
+                        </div>
+                        <textarea name="sections[${sectionIndex}][items][${itemIndex}]"
+                            placeholder="Add a note..." rows="2" style="flex:1;">${value}</textarea>
+                        <button type="button" class="button button-secondary button-sm" onclick="removeItem(this)">
+                            Remove
+                        </button>
+                    </div>
+                `;
+            }
+
+            function removeItem(button) {
+                button.closest(".item-row").remove();
+            }
+
+            // The name attributes (sections[N][items][M]) still reflect
+            // each item's *original* index after a move — qs/body-parser
+            // rebuilds the array from those bracketed indices, not from DOM
+            // order, so swapping two rows on screen alone wouldn't actually
+            // reorder anything on save. Moving the DOM node is still worth
+            // doing for a live preview of the new order; renumberItemNames
+            // (called right before submit) is what makes it stick.
+            function moveItem(button, direction) {
+
+                const row = button.closest(".item-row");
+                const sibling = direction < 0 ? row.previousElementSibling : row.nextElementSibling;
+
+                if (!sibling) {
+                    return;
+                }
+
+                if (direction < 0) {
+                    row.parentElement.insertBefore(row, sibling);
+                } else {
+                    row.parentElement.insertBefore(sibling, row);
+                }
+            }
+
+            function renumberItemNames() {
+
+                document.querySelectorAll(".items-container").forEach(container => {
+
+                    const sectionIndex = container.dataset.section;
+
+                    Array.from(container.children).forEach((row, itemIndex) => {
+
+                        const textarea = row.querySelector("textarea");
+
+                        if (textarea) {
+                            textarea.name = `sections[${sectionIndex}][items][${itemIndex}]`;
+                        }
+                    });
+                });
+            }
+
+            function removeSection(button) {
+                if (!confirm("Remove this whole section and its notes?")) return;
+                button.closest(".note-section").remove();
+            }
+
+            document.addEventListener("click", (e) => {
+
+                if (!e.target.classList.contains("add-item-btn")) {
+                    return;
+                }
+
+                const button = e.target;
+                const sectionIndex = button.dataset.section;
+
+                const container = document.querySelector(
+                    `.items-container[data-section="${sectionIndex}"]`
+                );
+
+                const itemIndex = container.children.length;
+
+                const row = document.createElement("div");
+                row.innerHTML = itemRowHTML(sectionIndex, itemIndex);
+
+                container.appendChild(row.firstElementChild);
+
+            });
+
+            document
+                .getElementById("add-section-btn")
+                .addEventListener("click", () => {
+
+                    const sectionIndex = sectionCount;
+
+                    const section = document.createElement("div");
+
+                    section.className = "note-section";
+                    section.style.marginBottom = "28px";
+                    section.style.paddingBottom = "24px";
+                    section.style.borderBottom = "1px solid #e5e7eb";
+
+                    section.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <input type="text" name="sections[${sectionIndex}][title]" value=""
+                                placeholder="Section title (e.g. Wins, Challenges, Action Items)" style="flex:1;">
+                            <button type="button" class="button button-danger button-sm" onclick="removeSection(this)">
+                                Remove Section
+                            </button>
+                        </div>
+
+                        <div class="items-container" data-section="${sectionIndex}" style="margin-top:14px;">
+                            ${itemRowHTML(sectionIndex, 0)}
+                        </div>
+
+                        <button type="button" class="button button-secondary button-sm add-item-btn" data-section="${sectionIndex}">
+                            + Add Note
+                        </button>
+                    `;
+
+                    document
+                        .getElementById("sections-container")
+                        .appendChild(section);
+
+                    sectionCount++;
+
+                });
+
+            document
+                .getElementById("notes-form")
+                .addEventListener("submit", renumberItemNames);
+
+        </script>
+
+    </div>
+
+    <script src="/js/localizeDates.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        <%= client.preferredName || client.firstName %>
+        <%= client.lastName %> | Values
+    </title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+    <style>
+
+        .values-section {
+            margin-top: 30px;
+        }
+
+        .values-section h3 {
+            margin-bottom: 10px;
+        }
+
+        .values-input {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+
+        .values-input.small {
+            min-height: 45px;
+        }
+
+        .values-help {
+            margin-top: 5px;
+            color: #777;
+            font-size: 13px;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .value-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .value-field label {
+            margin-bottom: 7px;
+            font-weight: 600;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 800px) {
+
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <%- include("../partials/dashboard-nav") %>
+
+
+    <main class="admin-page" style="max-width:900px;">
+
+
+        <!-- =========================
+             Header
+        ========================== -->
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-actions">
+
+                <a
+                    class="button button-secondary"
+                    href="/admin/clients/<%= client._id %>">
+
+                    ← Back to Client
+
+                </a>
+
+            </div>
+
+            <h1>
+                <%= client.preferredName || client.firstName %>
+                <%= client.lastName %>
+            </h1>
+
+            <p>
+                Values Exercise
+            </p>
+
+        </div>
+
+
+        <!-- =========================
+             Values Form
+        ========================== -->
+
+        <form
+            method="POST"
+            action="/admin/clients/<%= client._id %>/values">
+
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <!-- =========================
+                 Selected Values
+            ========================== -->
+
+            <div class="dashboard-card">
+
+                <h2>Selected Values</h2>
+
+                <p>
+                    Add or modify the values the client selected.
+                </p>
+
+                <textarea
+                    class="values-input"
+                    name="selectedValues"
+                    placeholder="Example: Honesty, Freedom, Family, Growth"><%= (client.valuesExercise?.selectedValues || []).join(", ") %></textarea>
+
+                <p class="values-help">
+                    Separate each value with a comma.
+                </p>
+
+            </div>
+
+
+            <!-- =========================
+                 Categories
+            ========================== -->
+
+            <div class="dashboard-card values-section">
+
+                <h2>Value Categories</h2>
+
+                <p>
+                    Add or modify the values assigned to each category.
+                </p>
+
+
+                <div class="values-grid">
+
+
+                    <div class="value-field">
+
+                        <label for="category1">
+                            Category 1
+                        </label>
+
+                        <textarea
+                            id="category1"
+                            name="category1"
+                            class="values-input"
+                            placeholder="Values for category 1"><%= (client.valuesExercise?.categories?.category1 || []).join(", ") %></textarea>
+
+                    </div>
+
+
+                    <div class="value-field">
+
+                        <label for="category2">
+                            Category 2
+                        </label>
+
+                        <textarea
+                            id="category2"
+                            name="category2"
+                            class="values-input"
+                            placeholder="Values for category 2"><%= (client.valuesExercise?.categories?.category2 || []).join(", ") %></textarea>
+
+                    </div>
+
+
+                    <div class="value-field">
+
+                        <label for="category3">
+                            Category 3
+                        </label>
+
+                        <textarea
+                            id="category3"
+                            name="category3"
+                            class="values-input"
+                            placeholder="Values for category 3"><%= (client.valuesExercise?.categories?.category3 || []).join(", ") %></textarea>
+
+                    </div>
+
+                </div>
+
+                <p class="values-help">
+                    Separate each value with a comma.
+                </p>
+
+            </div>
+
+
+            <!-- =========================
+                 Core Values
+            ========================== -->
+
+            <div class="dashboard-card values-section">
+
+                <h2>Core Values</h2>
+
+                <p>
+                    The client's primary/core value for each category.
+                </p>
+
+
+                <div class="values-grid">
+
+
+                    <div class="value-field">
+
+                        <label for="coreValue1">
+                            Category 1 Core Value
+                        </label>
+
+                        <input
+                            id="coreValue1"
+                            type="text"
+                            name="coreValue1"
+                            class="values-input small"
+                            value="<%= client.valuesExercise?.coreValues?.category1 || "" %>"
+                        >
+
+                    </div>
+
+
+                    <div class="value-field">
+
+                        <label for="coreValue2">
+                            Category 2 Core Value
+                        </label>
+
+                        <input
+                            id="coreValue2"
+                            type="text"
+                            name="coreValue2"
+                            class="values-input small"
+                            value="<%= client.valuesExercise?.coreValues?.category2 || "" %>"
+                        >
+
+                    </div>
+
+
+                    <div class="value-field">
+
+                        <label for="coreValue3">
+                            Category 3 Core Value
+                        </label>
+
+                        <input
+                            id="coreValue3"
+                            type="text"
+                            name="coreValue3"
+                            class="values-input small"
+                            value="<%= client.valuesExercise?.coreValues?.category3 || "" %>"
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 Completion
+            ========================== -->
+
+            <div class="dashboard-card values-section">
+
+                <h2>Exercise Status</h2>
+
+                <label class="checkbox-row">
+
+                    <input
+                        type="checkbox"
+                        name="completed"
+                        value="true"
+                        <%= client.valuesExercise?.completed ? "checked" : "" %>
+                    >
+
+                    Mark values exercise as completed
+
+                </label>
+
+            </div>
+
+
+            <!-- =========================
+                 Save
+            ========================== -->
+
+            <div class="dashboard-card">
+
+                <div class="form-actions">
+
+                    <button
+                        type="submit"
+                        class="button">
+
+                        Save Values
+
+                    </button>
+
+                    <a
+                        href="/admin/clients/<%= client._id %>"
+                        class="button button-secondary">
+
+                        Cancel
+
+                    </a>
+
+                </div>
+
+            </div>
+
+
+        </form>
+
+    </main>
+
+</body>
+
+</html>

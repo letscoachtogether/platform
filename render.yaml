@@ -1,0 +1,75 @@
+# Render Blueprint — lets someone deploy this with no server, DNS, or PM2
+# setup at all. In the Render dashboard: New -> Blueprint -> connect this
+# repo. Render reads this file, shows a form for every envVar below marked
+# `sync: false`, and provisions a web service with a free *.onrender.com
+# HTTPS URL on deploy. See README.md's "Deploy to Render" section.
+#
+# Not included here: MongoDB. Render doesn't offer a managed MongoDB — use a
+# free MongoDB Atlas cluster and paste its connection string into
+# MONGODB_URI when prompted.
+services:
+  - type: web
+    name: coaching-platform
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # Auto-generated — never prompted for.
+      - key: SESSION_SECRET
+        generateValue: true
+
+      # Auto-generated too. Authenticates GET /api/cron/session-reminders —
+      # copy this value (Environment tab, after deploy) into whatever
+      # scheduler you point at that URL (a GitHub Actions workflow, Render's
+      # own Cron Jobs, etc.) as its Authorization: Bearer header.
+      - key: CRON_SECRET
+        generateValue: true
+
+      # Required.
+      - key: MONGODB_URI
+        sync: false
+
+      # First admin account — fill both in to get a working login after
+      # deploy with no shell access needed. See seedAdminFromEnv() in
+      # code/scripts/seedDefaults.js. Safe to clear afterward, or leave set.
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_FIRST_NAME
+        sync: false
+      - key: ADMIN_LAST_NAME
+        sync: false
+
+      # Site identity — shown across the public site, emails, and metadata.
+      - key: BUSINESS_NAME
+        sync: false
+      - key: FOUNDER_NAME
+        sync: false
+      - key: SITE_TAGLINE
+        sync: false
+      - key: CONTACT_EMAIL
+        sync: false
+      - key: BOOKING_URL
+        sync: false
+
+      # Optional integrations — leave blank in the form to skip for now;
+      # each feature just stays inactive until its key is added later from
+      # the Render dashboard's Environment tab (no redeploy from git needed).
+      - key: RESEND_API_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: CAL_API_KEY
+        sync: false
+
+      # Not set here on purpose — falls back to Render's own
+      # RENDER_EXTERNAL_URL (see code/config/site.js) until a custom domain
+      # is added, at which point set this to that domain.
+      # - key: BASE_URL

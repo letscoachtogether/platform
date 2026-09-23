@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        <%= resource.title %> | <%= site.businessName %>
+    </title>
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+
+<body>
+
+    <nav class="top-nav">
+        <a class="logo" href="/client-dashboard/main">
+            <%= site.businessName %>
+        </a>
+    </nav>
+
+
+    <section class="container" style="margin-top:150px;">
+
+
+        <h1>
+            <%= resource.title %>
+        </h1>
+
+
+        <p>
+            <%= resource.summary %>
+        </p>
+
+        <% if (resource.type==="list" ) { %>
+
+            <% if (resource.sections && resource.sections.length) { %>
+
+                <% resource.sections.forEach(section=> { %>
+
+                    <div class="card">
+
+                        <h2>
+                            <%= section.title %>
+                        </h2>
+
+                        <div class="grid row" style="grid-template-columns: repeat(4,1fr);">
+
+                            <% section.items.forEach(item=> { %>
+
+                                <p>
+                                    <%= item %>
+                                </p>
+
+                                <% }) %>
+                        </div>
+
+                    </div>
+
+                    <% }) %>
+
+                        <% } else { %>
+
+                            <div class="card">
+
+                                <div class="grid row" style="grid-template-columns: repeat(4,1fr);">
+
+                                    <% resource.listItems.forEach(item=> { %>
+
+                                        <p>
+                                            <%= item %>
+                                        </p>
+
+                                        <% }) %>
+
+                                </div>
+
+                            </div>
+
+                            <% } %>
+
+                                <% } else if (resource.type==="tool" ) { %>
+
+                                    <% if (userResource?.unlocked) { %>
+
+                                        <div class="card">
+
+                                            <%- resource.content %>
+
+                                        </div>
+
+                                        <% } else { %>
+
+                                            <div class="card">
+
+                                                <p>
+                                                    This tool is available after requesting access.
+                                                </p>
+
+
+                                                <form method="POST"
+                                                    action="/client-dashboard/resources/<%= resource.slug %>/request">
+
+                                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                                                    <button class="button primary">
+
+                                                        <% if (userResource?.requested) { %>
+
+                                                            Requested
+
+                                                            <% } else { %>
+
+                                                                Request Tool
+
+                                                                <% } %>
+
+                                                    </button>
+
+                                                </form>
+
+                                            </div>
+
+                                            <% } %>
+
+                                                <% } else if (resource.type==="worksheet" ) { %>
+
+                                                    <% const savedAnswers = userResource?.answers || new Map(); %>
+
+                                                    <% if (isAdmin || !editing) { %>
+
+                                                        <% resource.questions.forEach(question=> { %>
+
+                                                            <div class="card worksheet-question">
+
+                                                                <h3>
+                                                                    <%= question.question %>
+                                                                </h3>
+
+
+                                                                <p>
+                                                                    <%= savedAnswers.get(question.id) %>
+                                                                </p>
+
+
+                                                            </div>
+
+
+                                                            <% }) %>
+
+                                                                <% if (!isAdmin) { %>
+                                                                    <div style="margin-top: 32px; text-align: center">
+                                                                        <a class="button" href="?edit=true">Edit Worksheet</a>
+                                                                    </div>
+                                                                <% } %>
+
+                                                                <% } else { %>
+
+                                                                    <form method="POST"
+                                                                        action="/client-dashboard/resources/<%= resource.slug %>"
+                                                                        class="worksheet-form">
+
+                                                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                                                                        <% resource.questions.forEach(question=> { %>
+
+
+                                                                            <div class="card worksheet-question">
+
+
+                                                                                <label for="<%= question.id %>">
+
+                                                                                    <%= question.question %>
+
+                                                                                </label>
+
+                                                                                <% if (question.placeholder) { %>
+
+                                                                                    <p>
+                                                                                        <%= question.placeholder %>
+                                                                                    </p>
+
+                                                                                    <% } %>
+
+                                                                                        <% if (question.type==="text" )
+                                                                                            { %>
+
+                                                                                            <input
+                                                                                                id="<%= question.id %>"
+                                                                                                name="<%= question.id %>"
+                                                                                                type="text"
+                                                                                                value="<%= savedAnswers.get(question.id) || '' %>"
+                                                                                                placeholder="Write your response here...">
+
+                                                                                            <% } else { %>
+
+                                                                                                <textarea
+                                                                                                    id="<%= question.id %>"
+                                                                                                    name="<%= question.id %>"
+                                                                                                    placeholder="Write your response here..."><%= savedAnswers.get(question.id) || '' %></textarea>
+
+                                                                                                <% } %>
+                                                                            </div>
+
+                                                                            <% }) %>
+
+                                                                                <div class="dashboard-actions">
+
+                                                                                    <div
+                                                                                        style="margin-top: 32px; text-align: center">
+                                                                                        <a class="button button-secondary" href="?">Cancel</a>
+                                                                                        <button type="submit"
+                                                                                            class="button primary">
+
+                                                                                            Save Worksheet
+
+                                                                                        </button>
+                                                                                    </div>
+
+                                                                                </div>
+
+                                                                    </form>
+
+
+
+
+
+                                                                    <% } %>
+
+
+
+
+                                                                        <% } %>
+
+                                                                        <% if (!isAdmin) { %>
+
+                                                                        <div style="margin-top: 32px; text-align: center">
+                                                                            <a class="button"
+                                                                                href="/client-dashboard/resources">Back to
+                                                                                Resources</a>
+                                                                        </div>
+
+                                                                        <% } else { %>
+
+                                                                        <div style="margin-top: 32px; text-align: center">
+                                                                            <a class="button button-secondary"
+                                                                                href="/admin/clients/<%= client._id %>">← Back to
+                                                                                <%= client.preferredName || client.firstName %></a>
+                                                                        </div>
+
+                                                                        <% } %>
+
+
+    </section>
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Review Testimonial Submission</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+
+    <%- include("../partials/dashboard-nav") %>
+<section class="admin-page" style="max-width:800px;">
+
+    <a class="button button-secondary button-sm" href="/admin/testimonial-submissions">← Back to Submissions</a>
+
+    <br><br>
+
+    <div class="card worksheet-question">
+
+        <p>
+
+            <% if (submission.status === "pending") { %>
+                <span class="badge badge-pending">Pending Review</span>
+            <% } else if (submission.status === "approved" && submission.publishedTestimonial && submission.publishedTestimonial.active) { %>
+                <span class="badge badge-live">Live on Site</span>
+            <% } else if (submission.status === "approved") { %>
+                <span class="badge badge-inactive">Approved, Not Live</span>
+                (deactivated on <a href="/admin/testimonials">Testimonials</a>)
+            <% } else { %>
+                <span class="badge badge-rejected">Rejected</span>
+            <% } %>
+
+        </p>
+
+        <p>
+            Submitted <span data-datetime="<%= submission.createdAt.toISOString() %>" data-format="date-short">
+                <%= submission.createdAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) %>
+            </span>
+            <% if (submission.reviewedAt) { %>
+                &nbsp;·&nbsp;
+                Last reviewed <span data-datetime="<%= submission.reviewedAt.toISOString() %>" data-format="date-short">
+                    <%= submission.reviewedAt.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) %>
+                </span>
+            <% } %>
+        </p>
+
+    </div>
+
+    <h2>What they answered</h2>
+
+    <% submission.answers.forEach(a => { %>
+
+        <div class="card worksheet-question">
+
+            <label><%= a.questionText %></label>
+
+            <p><%= a.answer %></p>
+
+        </div>
+
+    <% }) %>
+
+    <h2>Publish to Homepage</h2>
+
+    <p style="margin-bottom:20px;">
+        Edit this into a clean quote before publishing — this is exactly what will appear on the site.
+    </p>
+
+    <form method="POST" action="/admin/testimonial-submissions/<%= submission._id %>/approve">
+
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+        <div class="card worksheet-question">
+
+            <p>Name (credited on the site)</p>
+
+            <input
+                type="text"
+                name="name"
+                value="<%= submission.publishedTestimonial ? submission.publishedTestimonial.name : submission.name %>"
+                required>
+
+            <p>Testimonial Text</p>
+
+            <textarea
+                name="testimonialText"
+                rows="10"
+                required><%= submission.publishedTestimonial ? submission.publishedTestimonial.testimonialText : submission.draftText %></textarea>
+
+            <br><br>
+
+            <button class="button" type="submit">
+                <% if (submission.status === "approved") { %>
+                    Save & Republish
+                <% } else { %>
+                    Approve & Publish
+                <% } %>
+            </button>
+
+        </div>
+
+    </form>
+
+    <% if (submission.status !== "rejected") { %>
+
+        <form method="POST" action="/admin/testimonial-submissions/<%= submission._id %>/reject"
+            onsubmit="return confirm('Reject this submission? This does not remove anything already live on the site.')">
+
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <button class="button button-danger" type="submit">
+                Reject
+            </button>
+
+        </form>
+
+    <% } %>
+
+</section>
+
+<script src="/js/localizeDates.js"></script>
+
+</body>
+
+</html>

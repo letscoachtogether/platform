@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard | <%= site.businessName %></title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+
+<body>
+
+    <%- include("../partials/dashboard-nav") %>
+
+    <div class="dashboard-layout">
+
+        <%- include("partials/admin-sidebar", { currentPage: "dashboard" }) %>
+
+        <main class="dashboard-main">
+
+            <div class="admin-page-header">
+                <div>
+                    <h1>Admin Dashboard</h1>
+                    <p>Everything you need to run the site and support your clients.</p>
+                </div>
+            </div>
+
+            <section class="dashboard-grid">
+
+                <% if (pendingTestimonialSubmissions > 0) { %>
+
+                    <div class="dashboard-card" style="border:2px solid #fde68a; background:#fffbeb;">
+
+                        <h2>Testimonial Submissions</h2>
+
+                        <p style="margin-bottom:20px;">
+                            <%= pendingTestimonialSubmissions %> submission<%= pendingTestimonialSubmissions === 1 ? "" : "s" %>
+                            waiting on your review.
+                        </p>
+
+                        <a class="button" href="/admin/testimonial-submissions">
+                            Review Now
+                        </a>
+
+                    </div>
+
+                <% } %>
+
+                <div class="dashboard-card">
+                    <h2>Clients</h2>
+
+                    <p style="margin-bottom:20px;">
+                        View and manage your coaching clients, sessions, and programs.
+                    </p>
+
+                    <a class="button" href="/admin/clients">
+                        View Clients (<%= clients %>)
+                    </a>
+                </div>
+
+                <div class="dashboard-card">
+                    <h2>Sessions</h2>
+
+                    <p style="margin-bottom:20px;">
+                        See every booked session across all clients and jump straight to session notes.
+                    </p>
+
+                    <a class="button" href="/admin/sessions">
+                        View Sessions
+                    </a>
+                </div>
+
+                <div class="dashboard-card">
+                    <h2>Offerings</h2>
+
+                    <p style="margin-bottom:20px;">
+                        Create, edit, activate, deactivate, and delete coaching offerings.
+                    </p>
+
+                    <a class="button" href="/admin/offerings">
+                        Manage Offerings
+                    </a>
+                </div>
+
+                <div class="dashboard-card">
+                    <h2>Resources</h2>
+
+                    <p style="margin-bottom:20px;">
+                        Create, edit, organize, activate, and delete worksheets, tools, and lists.
+                    </p>
+
+                    <a class="button" href="/admin/resources">
+                        Manage Resources
+                    </a>
+                </div>
+
+                <div class="dashboard-card">
+
+                    <h2>Coaching Agreements</h2>
+
+                    <p style="margin-bottom:20px;">
+                        Create, edit, activate, and manage coaching agreement versions.
+                    </p>
+
+                    <a class="button" href="/admin/agreements">
+                        Manage Agreements
+                    </a>
+
+                </div>
+
+                <% if (pendingTestimonialSubmissions === 0) { %>
+
+                    <div class="dashboard-card">
+
+                        <h2>Testimonial Submissions</h2>
+
+                        <p style="margin-bottom:20px;">
+                            Review testimonials clients have submitted, edit them, and approve them to the homepage.
+                        </p>
+
+                        <a class="button" href="/admin/testimonial-submissions">
+                            Review Submissions
+                        </a>
+
+                    </div>
+
+                <% } %>
+
+                <div class="dashboard-card">
+
+                    <h2>Testimonials</h2>
+
+                    <p style="margin-bottom:20px;">
+                        Create, edit, activate, and manage what's currently published on the homepage.
+                    </p>
+
+                    <a class="button" href="/admin/testimonials">
+                        Manage Testimonials
+                    </a>
+
+                </div>
+
+                <div class="dashboard-card">
+
+                    <h2>Testimonial Questions</h2>
+
+                    <p style="margin-bottom:20px;">
+                        Add, edit, reorder, and remove the prompts clients see on the testimonial submission form.
+                    </p>
+
+                    <a class="button" href="/admin/testimonial-questions">
+                        Manage Questions
+                    </a>
+
+                </div>
+
+                <div class="dashboard-card">
+
+                    <h2>Referrals</h2>
+
+                    <p style="margin-bottom:20px;">
+                        See who your clients have referred.
+                    </p>
+
+                    <a class="button" href="/admin/referrals">
+                        View Referrals
+                    </a>
+
+                </div>
+
+                <div class="dashboard-card">
+
+                    <h2>Notifications</h2>
+
+                    <p style="margin-bottom:20px;">
+                        Choose which events email you, and where they're sent.
+                    </p>
+
+                    <a class="button" href="/admin/notifications">
+                        Manage Notifications
+                    </a>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sessions | Admin</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+
+    <%- include("../partials/dashboard-nav") %>
+
+    <div class="dashboard-layout">
+
+        <%- include("partials/admin-sidebar", { currentPage: "sessions" }) %>
+
+        <main class="dashboard-main">
+
+            <div class="admin-page-header">
+                <div>
+                    <h1>Sessions</h1>
+                    <p>Every booked session across all clients, soonest first.</p>
+                </div>
+            </div>
+
+            <% if (sessions.length) { %>
+
+                <input
+                    type="text"
+                    id="sessionSearch"
+                    placeholder="Search by client name..."
+                    style="width:100%; max-width:360px; padding:12px 16px; border:1px solid #e5e7eb; border-radius:10px; margin-bottom:20px; font-size:0.95rem;">
+
+                <div class="admin-list" id="sessionList">
+
+                    <% sessions.forEach(session => { %>
+
+                        <div class="admin-row" data-client-name="<%= (session.client.preferredName || session.client.firstName || '').toLowerCase() %> <%= (session.client.lastName || '').toLowerCase() %>">
+
+                            <div class="admin-row-main">
+
+                                <div class="admin-row-title">
+                                    <a href="/admin/clients/<%= session.client._id %>">
+                                        <%= session.client.preferredName || session.client.firstName %>
+                                        <%= session.client.lastName %>
+                                    </a>
+
+                                    <span class="badge <%= session.status === 'cancelled' ? 'badge-rejected' : 'badge-active' %>">
+                                        <%= session.status %>
+                                    </span>
+                                </div>
+
+                                <div class="admin-row-meta" data-datetime="<%= new Date(session.start).toISOString() %>" data-format="datetime-short">
+                                    <%= new Date(session.start).toLocaleString("en-US", {
+                                        weekday: "short", month: "short", day: "numeric",
+                                        hour: "numeric", minute: "2-digit"
+                                    }) %>
+                                </div>
+
+                            </div>
+
+                            <div class="admin-row-actions">
+
+                                <a class="button button-secondary button-sm"
+                                    href="/admin/sessions/<%= session.bookingUid %>/notes?clientId=<%= session.client._id %>&start=<%= encodeURIComponent(session.start) %>">
+                                    Notes
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    <% }) %>
+
+                </div>
+
+            <% } else { %>
+
+                <div class="admin-empty">
+                    <p>No sessions booked yet.</p>
+                </div>
+
+            <% } %>
+
+        </main>
+
+    </div>
+
+    <script>
+        const searchInput = document.getElementById("sessionSearch");
+
+        if (searchInput) {
+            searchInput.addEventListener("input", () => {
+                const query = searchInput.value.trim().toLowerCase();
+
+                document.querySelectorAll("#sessionList .admin-row").forEach(row => {
+                    const matches = row.dataset.clientName.includes(query);
+                    row.hidden = !matches;
+                });
+            });
+        }
+    </script>
+
+    <script src="/js/localizeDates.js"></script>
+
+</body>
+
+</html>

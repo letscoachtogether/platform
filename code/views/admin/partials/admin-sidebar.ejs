@@ -1,0 +1,65 @@
+<%
+// currentPage is optional — pages that don't pass it just render the
+// sidebar with nothing highlighted, rather than throwing.
+const _currentPage = typeof currentPage !== "undefined" ? currentPage : null;
+function isActive(page) {
+    return _currentPage === page ? "active" : "";
+}
+%>
+<aside class="sidebar">
+
+    <div class="sidebar-title">Admin Panel</div>
+
+    <nav class="sidebar-nav">
+
+        <a href="/admin/dashboard" class="sidebar-link <%= isActive('dashboard') %>">
+            Dashboard
+        </a>
+
+        <a href="/admin/clients" class="sidebar-link <%= isActive('clients') %>">
+            Clients
+        </a>
+
+        <a href="/admin/containers" class="sidebar-link <%= isActive('containers') %>">
+            Coaching Containers
+        </a>
+
+        <a href="/admin/sessions" class="sidebar-link <%= isActive('sessions') %>">
+            Sessions
+        </a>
+
+        <a href="/admin/offerings" class="sidebar-link <%= isActive('offerings') %>">
+            Offerings
+        </a>
+
+        <a href="/admin/resources" class="sidebar-link <%= isActive('resources') %>">
+            Resources
+        </a>
+
+        <a href="/admin/agreements" class="sidebar-link <%= isActive('agreements') %>">
+            Coaching Agreements
+        </a>
+
+        <a href="/admin/testimonial-submissions" class="sidebar-link <%= isActive('testimonial-submissions') %>">
+            Testimonial Submissions
+        </a>
+
+        <a href="/admin/testimonials" class="sidebar-link <%= isActive('testimonials') %>">
+            Testimonials
+        </a>
+
+        <a href="/admin/testimonial-questions" class="sidebar-link <%= isActive('testimonial-questions') %>">
+            Testimonial Questions
+        </a>
+
+        <a href="/admin/referrals" class="sidebar-link <%= isActive('referrals') %>">
+            Referrals
+        </a>
+
+        <a href="/admin/notifications" class="sidebar-link <%= isActive('notifications') %>">
+            Notifications
+        </a>
+
+    </nav>
+
+</aside>

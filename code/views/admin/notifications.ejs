@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Notifications</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+
+    <%- include("../partials/dashboard-nav") %>
+
+    <div class="dashboard-layout">
+
+        <%- include("partials/admin-sidebar", { currentPage: "notifications" }) %>
+
+        <main class="dashboard-main">
+
+            <div class="admin-page-header">
+                <div>
+                    <h1>Notifications</h1>
+                    <p>Choose which events email you, and where. Turning one off stops the email — the event
+                        still happens and still shows up in its usual place in the admin dashboard.</p>
+                </div>
+            </div>
+
+            <% if (!notifications.length) { %>
+
+                <div class="admin-empty">
+                    <p>No notification types configured yet.</p>
+                </div>
+
+            <% } else { %>
+
+                <div class="admin-list">
+
+                    <% notifications.forEach(n => { %>
+
+                        <form method="POST" action="/admin/notifications/<%= n._id %>" class="admin-row" style="flex-wrap:wrap;">
+
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                            <div class="admin-row-main">
+
+                                <div class="admin-row-title">
+                                    <%= n.label %>
+                                    <span class="badge <%= n.enabled ? 'badge-active' : 'badge-inactive' %>">
+                                        <%= n.enabled ? "On" : "Off" %>
+                                    </span>
+                                </div>
+
+                                <% if (n.description) { %>
+                                    <div class="admin-row-meta"><%= n.description %></div>
+                                <% } %>
+
+                                <label style="display:flex; align-items:center; gap:8px; margin-top:14px; font-weight:normal;">
+                                    <input type="checkbox" name="enabled" <%= n.enabled ? "checked" : "" %>>
+                                    Send this notification
+                                </label>
+
+                                <label for="recipientEmail-<%= n._id %>" style="display:block; margin-top:14px;">
+                                    Send to
+                                </label>
+                                <input
+                                    type="email"
+                                    id="recipientEmail-<%= n._id %>"
+                                    name="recipientEmail"
+                                    value="<%= n.recipientEmail %>"
+                                    style="max-width:320px;"
+                                    required>
+
+                            </div>
+
+                            <div class="admin-row-actions">
+                                <button class="button button-sm" type="submit">
+                                    Save
+                                </button>
+                            </div>
+
+                        </form>
+
+                    <% }) %>
+
+                </div>
+
+            <% } %>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

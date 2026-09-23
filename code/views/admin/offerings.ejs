@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Manage Offerings</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+
+    <%- include("../partials/dashboard-nav") %>
+
+    <div class="dashboard-layout">
+
+        <%- include("partials/admin-sidebar", { currentPage: "offerings" }) %>
+
+        <main class="dashboard-main">
+
+            <div class="admin-page-header">
+                <div>
+                    <h1>Offerings</h1>
+                    <p>Create, edit, activate, deactivate, and delete coaching offerings.</p>
+                </div>
+
+                <a class="button" href="/admin/offerings/new">
+                    + New Offering
+                </a>
+            </div>
+
+            <% if (!offerings.length) { %>
+
+                <div class="admin-empty">
+                    <p>No offerings yet. Create one to get started.</p>
+                </div>
+
+            <% } else { %>
+
+                <div class="admin-list">
+
+                    <% offerings.forEach(offering => { %>
+
+                        <div class="admin-row">
+
+                            <div class="admin-row-main">
+
+                                <div class="admin-row-title">
+                                    <%= offering.name %>
+                                    <span class="badge <%= offering.active ? 'badge-active' : 'badge-inactive' %>">
+                                        <%= offering.active ? "Active" : "Inactive" %>
+                                    </span>
+                                </div>
+
+                                <div class="admin-row-meta">
+                                    $<%= offering.price %> · <%= offering.duration %> ·
+                                    <%= offering.spotsRemaining %> spot<%= offering.spotsRemaining === 1 ? "" : "s" %> remaining
+                                </div>
+
+                            </div>
+
+                            <div class="admin-row-actions">
+
+                                <a class="button button-secondary button-sm" href="/admin/offerings/<%= offering._id %>/edit">
+                                    Edit
+                                </a>
+
+                                <form method="POST" action="/admin/offerings/<%= offering._id %>/toggle">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <button class="button button-secondary button-sm">
+                                        <%= offering.active ? "Deactivate" : "Activate" %>
+                                    </button>
+                                </form>
+
+                                <form method="POST" action="/admin/offerings/<%= offering._id %>/delete"
+                                    onsubmit="return confirm('Delete this offering?');">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <button class="button button-danger button-sm">
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    <% }) %>
+
+                </div>
+
+            <% } %>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

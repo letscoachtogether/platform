@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sessions | <%= site.businessName %></title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+
+<body>
+
+    <%- include("../partials/dashboard-nav") %>
+
+        <div class="dashboard-layout">
+
+
+            <aside class="sidebar">
+
+                <div class="sidebar-title">
+                    Client Portal
+                </div>
+
+                <nav class="sidebar-nav">
+
+                    <a href="/client-dashboard/main" class="sidebar-link">
+                        Dashboard
+                    </a>
+
+                    <a href="/client-dashboard/resources" class="sidebar-link">
+                        Resources
+                    </a>
+
+                    <a href="/client-dashboard/sessions" class="sidebar-link active">
+                        Sessions
+                    </a>
+
+                    <a href="/client-dashboard/profile" class="sidebar-link">
+                        Profile
+                    </a>
+
+                </nav>
+
+            </aside>
+
+
+            <main class="dashboard-main">
+
+
+                <div class="dashboard-header">
+
+                    <h1>
+                        Sessions
+                    </h1>
+
+                    <p>
+                        Manage your coaching sessions and schedule.
+                    </p>
+
+                </div>
+
+
+
+                <% if (!container) { %>
+
+                    <div class="dashboard-card status-card">
+
+                        <h2>
+                            No Active Coaching
+                        </h2>
+
+                        <p>
+                            You currently do not have an active coaching container.
+                        </p>
+
+                    </div>
+
+
+                    <% } else { %>
+
+
+
+                        <% if (container.status==="awaiting-slot" ) { %>
+
+
+                            <div class="dashboard-card status-card">
+
+
+                                <h2>
+                                    Choose your weekly coaching time
+                                </h2>
+
+
+                                <p>
+                                    Select the weekly time you would like to meet.
+                                    Your remaining sessions will automatically be scheduled.
+                                </p>
+
+
+                                <div class="dashboard-actions">
+
+                                    <a href="/client-dashboard/sessions/book" class="button book-session-link">
+
+                                        Choose Weekly Slot
+
+                                    </a>
+
+                                </div>
+
+
+                            </div>
+
+
+                            <% } %>
+
+
+
+
+
+                                <% if (container.status==="scheduling" ) { %>
+
+
+                                    <div class="dashboard-card status-card">
+
+
+                                        <h2>
+                                            Creating your coaching schedule
+                                        </h2>
+
+
+                                        <p>
+                                            Your weekly session schedule is being created.
+                                            This page will update once your sessions are ready.
+                                        </p>
+
+
+                                        <p>
+
+                                            Sessions created:
+
+                                            <strong>
+                                                <%= container.scheduling.completed %>
+                                                    /
+                                                    <%= container.sessionsGranted || container.sessionCount %>
+                                            </strong>
+
+                                        </p>
+
+
+                                    </div>
+
+
+                                    <% } %>
+
+
+
+
+
+
+                                        <% if (container.status==="scheduling-failed" ) { %>
+
+
+                                            <div class="dashboard-card status-card">
+
+
+                                                <h2>
+                                                    Schedule creation incomplete
+                                                </h2>
+
+
+                                                <p>
+                                                    Some sessions were created, but the remaining sessions could not be
+                                                    scheduled.
+                                                </p>
+
+
+                                                <p>
+
+                                                    Completed:
+
+                                                    <strong>
+                                                        <%= container.scheduling.completed %>
+                                                            /
+                                                            <%= container.sessionsGranted || container.sessionCount %>
+                                                    </strong>
+
+                                                </p>
+
+
+                                                <% if (container.scheduling.error) { %>
+
+                                                    <small>
+                                                        <%= container.scheduling.error %>
+                                                    </small>
+
+                                                    <% } %>
+
+
+
+                                                        <div class="dashboard-actions">
+
+                                                            <form method="POST"
+                                                                action="/client-dashboard/sessions/retry">
+
+                                                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                                                                <button class="button">
+
+                                                                    Retry Scheduling
+
+                                                                </button>
+
+                                                            </form>
+
+                                                            <a href="/client-dashboard/sessions/book?reschedule=true"
+                                                                class="button button-secondary book-session-link">
+
+                                                                Change My Timeslot
+
+                                                            </a>
+
+                                                        </div>
+
+
+                                            </div>
+
+
+                                            <% } %>
+                                                <% if ( container.status==="active" || container.status==="completed" )
+                                                    { %>
+
+                                                    <% if (container.status==="active") { %>
+
+                                                        <div class="dashboard-actions" style="margin-bottom:24px;">
+                                                            <a href="/client-dashboard/sessions/book?reschedule=true"
+                                                                class="button button-secondary book-session-link">
+                                                                Change My Timeslot
+                                                            </a>
+                                                        </div>
+
+                                                    <% } %>
+
+                                                    <% const now=new Date(); const pastSessions=sessions
+                                                        .filter(session=> new Date(session.start) < now) .reverse();
+                                                            const futureSessions=sessions .filter(session=> new
+                                                            Date(session.start) >= now);
+
+                                                            const nextSession = futureSessions[0];
+
+                                                            const upcomingSessions = futureSessions.slice(1);
+                                                            %>
+
+
+                                                            <div class="sessions-layout">
+
+
+                                                                <!-- LEFT COLUMN -->
+                                                                <div class="sessions-main-column">
+
+
+                                                                    <% if (nextSession) { %>
+
+                                                                        <div
+                                                                            class="dashboard-card status-card next-session">
+
+
+                                                                            <span class="dashboard-badge">
+                                                                                Next Session
+                                                                            </span>
+
+
+                                                                            <h2>
+                                                                                <span data-datetime="<%= new Date(nextSession.start).toISOString() %>" data-format="date">
+                                                                                    <%= new Date(nextSession.start).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }) %>
+                                                                                </span>
+
+                                                                                    at
+
+                                                                                <span data-datetime="<%= new Date(nextSession.start).toISOString() %>" data-format="time">
+                                                                                    <%= new Date(nextSession.start).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) %>
+                                                                                </span>
+                                                                            </h2>
+
+
+                                                                            <!-- <p>
+                                                                                Status:
+                                                                                <strong>
+                                                                                    <%= nextSession.status %>
+                                                                                </strong>
+                                                                            </p> -->
+
+
+                                                                            <div class="dashboard-actions">
+
+                                                                                <a href="/client-dashboard/sessions/<%= nextSession.bookingUid %>/<%= 'upcoming' %>/worksheet"
+                                                                                    class="button">
+                                                                                 
+                                                                                     Session Preparation Form
+                                                                                 
+                                                                                 </a>
+                                                                                 
+                                                                            
+                                                                            
+                                                                                <a href="/client-dashboard/sessions/<%= nextSession.bookingUid %>/upcoming/tools"
+                                                                                   class="button">
+
+                                                                                    Request a Tool
+
+                                                                                </a>
+
+
+                                                                                <a href="https://cal.com/booking/<%= nextSession.uid %>"
+                                                                                   class="button"
+                                                                                   target="_blank"
+                                                                                   rel="noopener noreferrer">
+
+                                                                                    Manage ↗
+
+                                                                                </a>
+
+                                                                            </div>
+
+
+                                                                        </div>
+
+                                                                        <% } %>
+
+
+
+                                                                            <% if (pastSessions.length> 0) { %>
+
+                                                                                <div class="past-sessions">
+
+
+                                                                                    <h2>
+                                                                                        Past Sessions
+                                                                                    </h2>
+
+
+                                                                                    <% pastSessions.forEach(session=> {
+                                                                                        %>
+
+
+                                                                                        <div
+                                                                                            class="dashboard-card past-session">
+
+
+                                                                                            <div>
+
+                                                                                                <h3 data-datetime="<%= new Date(session.start).toISOString() %>" data-format="date-short">
+                                                                                                    <%= new Date(session.start).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) %>
+                                                                                                </h3>
+
+
+
+
+                                                                                            </div>
+
+
+                                                                                            <div
+                                                                                                class="dashboard-actions">
+
+                                                                                                <a href="/client-dashboard/sessions/<%= session.bookingUid %>/<%= 'past' %>/worksheet"
+                                                                                                    class="button">
+
+                                                                                                    Session Preparation Form
+
+                                                                                                </a>
+
+
+                                                                                                <a href="/client-dashboard/sessions/<%= session.bookingUid %>/<%= session.start %>/notes"
+                                                                                                    class="button">
+
+                                                                                                    Notes
+
+                                                                                                </a>
+
+                                                                                                <a href="/client-dashboard/sessions/<%= session.bookingUid %>/past/tools"
+                                                                                                   class="button">
+
+                                                                                                    Tools
+
+                                                                                                </a>
+                                                                                            </div>
+
+
+                                                                                        </div>
+
+
+                                                                                        <% }) %>
+
+
+                                                                                </div>
+
+                                                                                <% } %>
+
+
+                                                                </div>
+
+
+
+
+
+                                                                <!-- RIGHT COLUMN -->
+                                                                <div class="upcoming-panel">
+
+
+                                                                    <h2>
+                                                                        Upcoming Sessions
+                                                                    </h2>
+
+
+                                                                    <% if (upcomingSessions.length===0) { %>
+
+                                                                        <p>
+                                                                            No upcoming sessions.
+                                                                        </p>
+
+                                                                        <% } %>
+
+
+
+                                                                            <% upcomingSessions.forEach(session=> { %>
+
+
+                                                                                <div class="upcoming-session">
+
+
+                                                                                    <div>
+
+                                                                                        <strong data-datetime="<%= new Date(session.start).toISOString() %>" data-format="date-short">
+                                                                                            <%= new Date(session.start).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) %>
+                                                                                        </strong>
+
+                                                                                        <br>
+
+                                                                                        <span data-datetime="<%= new Date(session.start).toISOString() %>" data-format="time">
+                                                                                            <%= new Date(session.start).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) %>
+                                                                                        </span>
+
+                                                                                    </div>
+
+
+                                                                                    <a href="https://cal.com/booking/<%= session.uid %>"
+                                                                                        class="button" target="_blank"
+                                                                                        rel="noopener noreferrer">
+
+                                                                                        Manage ↗
+
+                                                                                    </a>
+
+
+                                                                                </div>
+
+
+                                                                                <% }) %>
+
+
+                                                                </div>
+
+
+                                                            </div>
+
+
+                                                            <% } %>
+                                                                <% } %>
+
+<script>
+    // The weekly slot picker's time labels ("9:00 AM") come from asking
+    // Cal.com for availability in a specific timezone — not a single
+    // instant reformatting can fix client-side. Send the viewer's real
+    // timezone along so the picker computes/labels slots in it instead of
+    // defaulting to the business's own timezone.
+    (function () {
+        try {
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            if (!tz) return;
+
+            document.querySelectorAll(".book-session-link").forEach(link => {
+                const url = new URL(link.href, window.location.origin);
+                url.searchParams.set("tz", tz);
+                link.href = url.pathname + url.search;
+            });
+        } catch (err) {
+            // Unsupported Intl API or similar — links just fall back to
+            // the server's default timezone, same as before this existed.
+        }
+    })();
+</script>
+
+<script src="/js/localizeDates.js"></script>
+
+</body>
+
+</html>

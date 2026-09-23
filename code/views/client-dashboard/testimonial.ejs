@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Share a Testimonial | <%= site.businessName %>
+    </title>
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+
+<body>
+
+    <nav class="top-nav">
+        <a class="logo" href="/client-dashboard/main">
+            <%= site.businessName %>
+        </a>
+    </nav>
+
+
+    <section class="container" style="margin-top:150px;">
+
+
+        <h1>
+            Share a Testimonial
+        </h1>
+
+
+        <p>
+            Tell us what coaching with <%= site.businessName %> has been like for you. With your permission, we'd love to feature
+            it on our site.
+        </p>
+
+        <% const isLive = mySubmission && mySubmission.status === "approved" && mySubmission.publishedTestimonial
+            && mySubmission.publishedTestimonial.active; %>
+
+        <% if (isLive) { %>
+
+            <div class="card worksheet-question">
+                <p>Your testimonial is live on our site. You can update it any time below — edits go back through
+                    review before they replace what's currently live.</p>
+            </div>
+
+        <% } else if (mySubmission && mySubmission.status === "approved") { %>
+
+            <div class="card worksheet-question">
+                <p>Your testimonial was approved but isn't currently live on the site. You can still edit it below.</p>
+            </div>
+
+        <% } else if (mySubmission && mySubmission.status === "rejected") { %>
+
+            <div class="card worksheet-question">
+                <p>We didn't publish your last submission as-is. Feel free to update it below and resubmit.</p>
+            </div>
+
+        <% } else if (mySubmission) { %>
+
+            <div class="card worksheet-question">
+                <p>We've got your testimonial and it's being reviewed before it goes live. You can still edit it
+                    below.</p>
+            </div>
+
+        <% } %>
+
+        <% const answersByQuestion = {}; (mySubmission ? mySubmission.answers : []).forEach(a => {
+            if (a.question) answersByQuestion[a.question.toString()] = a.answer;
+        }); %>
+
+        <form method="POST" action="/client-dashboard/testimonial" class="worksheet-form">
+
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <div class="card worksheet-question">
+
+                <label for="testimonialName">
+                    Name
+                </label>
+
+                <p>
+                    How should we credit you?
+                </p>
+
+                <input id="testimonialName" name="name" type="text"
+                    value="<%= mySubmission ? mySubmission.name : testimonialName %>"
+                    placeholder="Write your response here..." required>
+
+            </div>
+
+            <% if (questions.length) { %>
+
+                <p style="margin-top:24px;">
+                    Answer as many of these as feel relevant — you don't need to answer all of them.
+                </p>
+
+                <% questions.forEach((q)=> { %>
+
+                    <% const qid = q._id.toString(); %>
+
+                    <div class="card worksheet-question">
+
+                        <label for="<%= qid %>">
+                            <%= q.question %>
+                        </label>
+
+                        <textarea id="<%= qid %>" name="<%= qid %>"
+                            placeholder="Write your response here..."
+                        ><%= answersByQuestion[qid] || "" %></textarea>
+
+                    </div>
+
+                    <% }) %>
+
+            <% } %>
+
+            <div class="dashboard-actions">
+                <div style="margin-top: 32px; text-align: center">
+                    <button type="submit" class="button primary">
+                        <% if (mySubmission) { %>
+                            Update Testimonial
+                        <% } else { %>
+                            Submit Testimonial
+                        <% } %>
+                    </button>
+                </div>
+            </div>
+
+        </form>
+
+        <div style="margin-top: 32px; text-align: center">
+            <a class="button" href="/client-dashboard/main">Back to Dashboard</a>
+        </div>
+
+    </section>
+
+</body>
+
+</html>

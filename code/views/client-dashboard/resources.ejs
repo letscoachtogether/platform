@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resources | <%= site.businessName %></title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+
+<body>
+
+    <%- include("../partials/dashboard-nav") %>
+
+
+    <div class="dashboard-layout">
+
+
+        <aside class="sidebar">
+
+            <div class="sidebar-title">
+                Client Portal
+            </div>
+
+
+            <nav class="sidebar-nav">
+
+                <a href="/client-dashboard/main" class="sidebar-link">
+                    Dashboard
+                </a>
+
+                <a href="/client-dashboard/resources" class="sidebar-link active">
+                    Resources
+                </a>
+
+                <a href="/client-dashboard/sessions" class="sidebar-link">
+                    Sessions
+                </a>
+
+                <a href="/client-dashboard/profile" class="sidebar-link">
+                    Profile
+                </a>
+
+            </nav>
+
+        </aside>
+
+        <main class="dashboard-main">
+
+            <div class="dashboard-header">
+
+                <h1>
+                    Resources
+                </h1>
+
+                <p>
+                    Access coaching tools, complete worksheets, and explore reference materials.
+                </p>
+
+            </div>
+
+            <section class="container" style="padding-top: 60px; padding-bottom: 20px;">
+
+
+                <h2>
+                    Exercises
+                </h2>
+
+
+                <div class="dashboard-grid">
+
+                    <a href="/client-dashboard/wheel-of-life"
+                        class="card selectable">
+
+                        <h3>
+                            Wheel of Life
+                        </h3>
+
+
+                        <div class="subtitle">
+                            Take stock of how fulfilled you are feeling about different areas of your life.
+                        </div>
+                    </a>
+
+                    <a href="/client-dashboard/allValues"
+                        class="card selectable">
+
+                        <h3>
+                            Values Sorting
+                        </h3>
+
+
+                        <div class="subtitle">
+                            Identify your core and supporting values so that you can spend your time and resources in a way that is meaningful to you.
+                        </div>
+                    </a>
+
+
+
+                    <% resources.filter(resource => resource.type === "tool").forEach(resource => { %>
+
+                        <% const state = userResources.get(resource._id.toString()); %>
+                    
+                        <a href="/client-dashboard/resources/<%= resource.slug %>"
+                            class="card selectable"
+                            data-access="<%= state?.unlocked ? 'unlocked' : 'locked' %>"
+                            data-title="<%= resource.title %>"
+                            data-description="<%= resource.summary %>">
+                    
+                            <h3>
+                                <%= resource.title %>
+                            </h3>
+                    
+                            <p>
+                                <%= resource.summary %>
+                            </p>
+                    
+                            <small>
+                    
+                                <% if (state?.unlocked) { %>
+                    
+                                    Available
+                    
+                                <% } else if (state?.requested) { %>
+                    
+                                    Requested
+                    
+                                <% } else { %>
+                    
+                                    Request Access
+                    
+                                <% } %>
+                    
+                            </small>
+                    
+                        </a>
+                    
+                    <% }) %>
+
+                </div>
+
+
+            </section>
+
+            <div id="toolModal" class="modal">
+
+                <div class="modal-content">
+            
+                    <span class="close">&times;</span>
+            
+                    <h2 id="modalTitle"></h2>
+            
+                    <p id="modalDescription"></p>
+            
+                    <a id="requestToolButton" class="button primary">
+                        Request Tool
+                    </a>
+            
+                </div>
+            
+            </div>
+
+
+
+            <!-- WORKSHEETS -->
+
+
+            <section class="container" style="padding-top: 60px; padding-bottom: 20px;">
+
+
+
+                <h2>
+                    Worksheets
+                </h2>
+
+
+                <div class="dashboard-grid">
+
+
+                    <% resources.filter(resource => resource.type === "worksheet").forEach(resource => { %>
+
+
+                        <% const state = userResources.get(resource._id.toString()); %>
+
+
+                        <a href="/client-dashboard/resources/<%= resource.slug %>"
+                            class="card selectable">
+
+
+                            <h3>
+                                <%= resource.title %>
+                            </h3>
+
+
+                            <div class="subtitle">
+                                <%= resource.summary %>
+                            </div>
+
+
+                        </a>
+
+
+                    <% }) %>
+
+
+                </div>
+
+            </section>
+
+            <section id="reference-lists" class="container" style="padding-top: 60px; padding-bottom: 20px;">
+
+
+                <h2>
+                    Reference Lists
+                </h2>
+
+                <div class="dashboard-grid">
+
+                    <% resources.filter(resource => resource.type === "list").forEach(resource => { %>
+
+                        <a href="/client-dashboard/resources/<%= resource.slug %>"
+                            class="card selectable">
+
+                            <h3>
+                                <%= resource.title %>
+                            </h3>
+
+                            <div class="subtitle">
+                                <%= resource.summary %>
+                            </div>
+
+                        </a>
+
+
+                    <% }) %>
+
+
+                </div>
+
+
+            </section>
+
+
+
+        </main>
+
+
+    </div>
+
+
+</body>
+
+</html>

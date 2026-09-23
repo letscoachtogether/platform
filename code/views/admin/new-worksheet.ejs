@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>New Worksheet</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+    <%- include("../partials/dashboard-nav") %>
+
+    <section class="admin-page" style="max-width:800px;">
+
+        <a class="button button-secondary button-sm" href="/admin/resources">← Back to Resources</a>
+
+        <br><br>
+
+        <h1>Create Worksheet</h1>
+
+        <form method="POST" action="/admin/worksheets/new">
+
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <p>Title</p>
+
+            <input type="text" name="title" required>
+
+            <p>Slug</p>
+
+            <input type="text" name="slug" required>
+
+            <p>Summary</p>
+
+            <textarea name="summary"></textarea>
+
+            <p>Instructions</p>
+
+            <textarea name="content" rows="6"></textarea>
+
+
+            <p>Category</p>
+
+            <select name="category" required>
+                <option value="pre-session">Pre-session</option>
+                <option value="Container Foundations">Container Foundations</option>
+                <option value="Interpersonal">Interpersonal</option>
+                <option value="Productivity">Productivity</option>
+                <option value="Integration">Integration</option>
+            </select>
+
+            <p>Display Order</p>
+
+            <input type="number" name="display_order">
+
+            <hr>
+
+            <h2>Questions</h2>
+
+            <div id="questions"></div>
+
+            <button type="button" onclick="addQuestion()">
+
+                + Add Question
+
+            </button>
+
+            <br><br>
+
+            <button class="button" type="submit">
+
+                Create Worksheet
+
+            </button>
+
+        </form>
+
+    </section>
+
+    <script>
+
+        let count = 0;
+
+        function addQuestion() {
+
+            const container = document.getElementById("questions");
+
+            const div = document.createElement("div");
+
+            div.style.marginBottom = "20px";
+
+            div.innerHTML = `
+
+        <input
+            type="text"
+            name="questions[${count}][id]"
+            placeholder="Question ID"
+            required>
+
+        <input
+            type="text"
+            name="questions[${count}][question]"
+            placeholder="Question Text"
+            required>
+
+        <select
+            name="questions[${count}][type]">
+
+            <option value="textarea">Textarea</option>
+            <option value="text">Text</option>
+
+        </select>
+
+        <input
+            type="text"
+            name="questions[${count}][placeholder]"
+            placeholder="Placeholder">
+
+    `;
+
+            container.appendChild(div);
+
+            count++;
+
+        }
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Testimonials</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+
+    <%- include("../partials/dashboard-nav") %>
+
+    <div class="dashboard-layout">
+
+        <%- include("partials/admin-sidebar", { currentPage: "testimonials" }) %>
+
+        <main class="dashboard-main">
+
+            <div class="admin-page-header">
+                <div>
+                    <h1>Testimonials</h1>
+                    <p>What's currently published (or could be published) on the homepage.</p>
+                </div>
+
+                <a class="button" href="/admin/testimonials/new">
+                    + New Testimonial
+                </a>
+            </div>
+
+            <% if (!testimonials.length) { %>
+
+                <div class="admin-empty">
+                    <p>No testimonials yet. Create one, or approve a client submission from the
+                        <a href="/admin/testimonial-submissions">Testimonial Submissions</a> inbox.</p>
+                </div>
+
+            <% } else { %>
+
+                <div class="admin-list">
+
+                    <% testimonials.forEach(testimonial => { %>
+
+                        <div class="admin-row">
+
+                            <div class="admin-row-main">
+
+                                <div class="admin-row-title">
+                                    <%= testimonial.name %>
+                                    <span class="badge <%= testimonial.active ? 'badge-active' : 'badge-inactive' %>">
+                                        <%= testimonial.active ? "Live" : "Inactive" %>
+                                    </span>
+                                </div>
+
+                                <div class="admin-row-meta">
+                                    <%= testimonial.testimonialText.substring(0,150) %><% if (testimonial.testimonialText.length > 150) { %>...<% } %>
+                                </div>
+
+                            </div>
+
+                            <div class="admin-row-actions">
+
+                                <a class="button button-secondary button-sm" href="/admin/testimonials/<%= testimonial._id %>/edit">
+                                    Edit
+                                </a>
+
+                                <form method="POST" action="/admin/testimonials/<%= testimonial._id %>/toggle">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <button class="button button-secondary button-sm">
+                                        <%= testimonial.active ? "Deactivate" : "Activate" %>
+                                    </button>
+                                </form>
+
+                                <form method="POST" action="/admin/testimonials/<%= testimonial._id %>/delete"
+                                    onsubmit="return confirm('Delete this testimonial?')">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <button class="button button-danger button-sm">
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    <% }) %>
+
+                </div>
+
+            <% } %>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

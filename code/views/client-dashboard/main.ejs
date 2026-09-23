@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Dashboard | <%= site.businessName %></title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+    <%- include("../partials/dashboard-nav") %>
+
+        <!-- Dashboard Layout -->
+        <div class="dashboard-layout">
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-title">Client Portal</div>
+                <nav class="sidebar-nav">
+                    <a href="/client-dashboard/main"
+                        class="sidebar-link <%= currentPage === 'dashboard' ? 'active' : '' %>">
+                        Dashboard
+                    </a>
+                    <a href="/client-dashboard/resources"
+                        class="sidebar-link <%= currentPage === 'resources' ? 'active' : '' %>">
+                        Resources
+                    </a>
+                    <a href="/client-dashboard/sessions"
+                        class="sidebar-link <%= currentPage === 'sessions' ? 'active' : '' %>">
+                        Sessions
+                    </a>
+                    <a href="/client-dashboard/profile"
+                        class="sidebar-link <%= currentPage === 'profile' ? 'active' : '' %>">
+                        Profile
+                    </a>
+                </nav>
+            </aside>
+
+            <main class="dashboard-main">
+
+                <div class="dashboard-header">
+
+                    <h1>
+                        Welcome back, <%= displayName || "Client" %>
+                    </h1>
+
+                </div>
+
+                <% if (newSessionsPurchased) { %>
+
+                    <div class="dashboard-card status-card">
+                        <h2>You're all set!</h2>
+                        <p>
+                            Thanks for continuing your coaching journey with us. Head to the "Sessions" tab to pick
+                            your new timeslot.
+                        </p>
+                    </div>
+
+                <% } %>
+
+                <%
+                    // Once onboarding is done, the active/paused case has
+                    // nothing to say here — that message lives under "Your
+                    // Coaching Journey" below instead — so skip the card
+                    // rather than show it empty.
+                    const showStatusCard = !container
+                        || container.status === "awaiting-slot"
+                        || container.status === "completed"
+                        || ((container.status === "active" || container.status === "paused") && progress.onboardingCompleted < progress.onboardingTotal);
+                %>
+
+                <% if (showStatusCard) { %>
+
+                    <div class="dashboard-card status-card">
+
+                        <% if (!container) { %>
+
+                            <h2>No Active Coaching</h2>
+                            <p>
+                                You currently do not have an active coaching container. Check out the services below
+                                to get started.
+                            </p>
+
+                        <% } else if (container.status === "awaiting-slot") { %>
+
+                            <h2>Schedule your sessions.</h2>
+
+                            <p>
+                                Navigate to the "Sessions" tab to set up your weekly timeslot.
+                            </p>
+
+                        <% } else if (container.status === "completed") { %>
+
+                            <h2>You've completed this coaching engagement.</h2>
+                            <p>
+                                We'd love to hear how it went — and we're here whenever you're ready for more.
+                            </p>
+
+                        <% } else { %>
+
+                            <h2>Welcome back.</h2>
+
+                            <p>
+                                Finish your onboarding checklist below to get the most out of your coaching
+                                container.
+                            </p>
+
+                        <% } %>
+
+                    </div>
+
+                <% } %>
+
+                <%
+                    // Shown any time onboarding isn't finished yet,
+                    // regardless of container stage — a client mid-active-
+                    // coaching who still hasn't done all 5 should still be
+                    // pointed at whichever ones are left.
+                %>
+
+                <% if (progress.onboardingCompleted < progress.onboardingTotal) { %>
+
+                    <section class="dashboard-section">
+
+                        <h2>Finish Onboarding</h2>
+
+                        <div class="dashboard-card">
+
+                            <p style="margin-bottom:20px;">
+                                <%= progress.onboardingCompleted %> of <%= progress.onboardingTotal %> complete.
+                                Finish these to get the most out of your coaching container.
+                            </p>
+
+                            <div class="admin-list">
+
+                                <% progress.onboardingItems.forEach(item => { %>
+
+                                    <a href="<%= item.href %>" class="admin-row" style="text-decoration:none; color:inherit;">
+
+                                        <div class="admin-row-main">
+                                            <div class="admin-row-title">
+                                                <%= item.title %>
+                                                <span class="badge <%= item.done ? 'badge-active' : 'badge-inactive' %>">
+                                                    <%= item.done ? "Completed" : "Not Started" %>
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="admin-row-actions">
+                                            <span class="button button-secondary button-sm">
+                                                <%= item.done ? "Review" : "Start" %>
+                                            </span>
+                                        </div>
+
+                                    </a>
+
+                                <% }) %>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                <% } %>
+
+                <% if (stage === "active") { %>
+
+                    <section class="dashboard-section">
+
+                        <h2>Your Coaching Journey</h2>
+
+                        <% if (sessionProgress && sessionProgress.total > 0) { %>
+
+                            <div class="dashboard-card">
+
+                                <div class="progress-header">
+                                    <span>Sessions completed</span>
+                                    <span><%= sessionProgress.passed %> of <%= sessionProgress.total %></span>
+                                </div>
+
+                                <div class="progress-bar">
+                                    <div
+                                        class="progress-fill"
+                                        style="width: <%= Math.round((sessionProgress.passed / sessionProgress.total) * 100) %>%">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        <% } %>
+
+                        <div class="dashboard-card">
+
+                            <h3>Your Roadmap</h3>
+
+                            <p>
+                                Goals for this coaching engagement, and a plan for each session — edit it
+                                anytime, together with your coach.
+                            </p>
+
+                            <div class="dashboard-actions">
+                                <a href="/client-dashboard/roadmap" class="button">View Roadmap</a>
+                            </div>
+
+                        </div>
+
+                        <% if (progress.onboardingCompleted >= progress.onboardingTotal) { %>
+
+                            <div class="dashboard-card">
+
+                                <h3>Prepare for your upcoming session.</h3>
+
+                                <p>
+                                    Navigate to the "Sessions" tab to prepare for your upcoming session.
+                                </p>
+
+                                <div class="dashboard-actions">
+                                    <a href="/client-dashboard/sessions" class="button">Go to Sessions</a>
+                                </div>
+
+                            </div>
+
+                        <% } %>
+
+                        <% progressResources.forEach(resource => { %>
+
+                            <a href="/client-dashboard/resources/<%= resource.slug %>" class="dashboard-card" style="display:block; text-decoration:none; color:inherit;">
+
+                                <h3><%= resource.title %></h3>
+
+                                <% if (resource.summary) { %>
+                                    <p><%= resource.summary %></p>
+                                <% } %>
+
+                            </a>
+
+                        <% }) %>
+
+                    </section>
+
+                <% } %>
+
+                <%
+                    // Always available, regardless of stage — a client
+                    // might want to leave a testimonial, refer someone, or
+                    // book more sessions at any point, not just at the end.
+                %>
+
+                <section class="dashboard-section">
+
+                    <h2>Share &amp; Explore</h2>
+
+                    <div class="dashboard-grid">
+
+                        <a href="/client-dashboard/testimonial" class="card selectable">
+
+                            <h3>
+                                <% if (mySubmission) { %>
+                                    Your Testimonial
+                                <% } else { %>
+                                    Share a Testimonial
+                                <% } %>
+                            </h3>
+
+                            <p>Tell us what coaching with <%= site.businessName %> has been like for you.</p>
+
+                        </a>
+
+                        <a href="/client-dashboard/referral" class="card selectable">
+
+                            <h3>Refer a Friend</h3>
+
+                            <p>Know someone who'd benefit from coaching? Send us their info.</p>
+
+                            <small>
+                                <%= progress.referralCount > 0 ? `${progress.referralCount} Sent` : "Refer Someone" %>
+                            </small>
+
+                        </a>
+
+                        <a href="/client-dashboard/add-sessions" class="card selectable">
+
+                            <h3>Add More Sessions</h3>
+
+                            <p>Ready to keep going? Book another coaching engagement.</p>
+
+                            <small>Book Now</small>
+
+                        </a>
+
+                        <% continuityResources.forEach(resource => { %>
+
+                            <a href="/client-dashboard/resources/<%= resource.slug %>" class="card selectable">
+
+                                <h3><%= resource.title %></h3>
+
+                                <% if (resource.summary) { %>
+                                    <p><%= resource.summary %></p>
+                                <% } %>
+
+                            </a>
+
+                        <% }) %>
+
+                    </div>
+
+                </section>
+
+            </main>
+        </div>
+
+</body>
+
+</html>

@@ -1,0 +1,133 @@
+body {
+    margin: 0;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+/* Page */
+.auth-page {
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 120px 20px 40px;
+}
+
+/* Card */
+.auth-card {
+    width: 100%;
+    max-width: 440px;
+
+    background: white;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+
+    padding: 42px;
+
+    box-shadow:
+        0 10px 30px rgba(15, 23, 42, 0.04),
+        0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+/* Header */
+.auth-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.auth-header h1 {
+    margin: 0 0 10px;
+    font-size: 34px;
+    font-weight: 600;
+    letter-spacing: -1px;
+}
+
+.auth-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* Form */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #334155;
+}
+
+.input-group input {
+    height: 54px;
+
+    /* border: 1px solid #dbe2ea; */
+    border-radius: 14px;
+
+    padding: 0 16px;
+
+    font-size: 15px;
+
+    background: white;
+
+    transition: all 0.2s ease;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #0f766e;
+    box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.08);
+}
+
+/* Footer */
+.auth-footer {
+    margin-top: 28px;
+    text-align: center;
+}
+
+.auth-footer a {
+    color: #0f766e;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.auth-footer p {
+    margin-top: 18px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+
+    .auth-page {
+        padding: 100px 16px 30px;
+    }
+
+    .auth-card {
+        padding: 28px 22px;
+        border-radius: 18px;
+    }
+
+    .auth-header h1 {
+        font-size: 28px;
+    }
+
+    .input-group input {
+        height: 50px;
+    }
+}

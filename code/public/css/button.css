@@ -1,0 +1,172 @@
+/* --------------------------------------------------
+   Buttons
+-------------------------------------------------- */
+
+button,
+.button {
+  appearance: none;
+  border: none;
+  outline: none;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  padding:
+    15px 28px;
+
+  min-height: 52px;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(135deg,
+      #0f766e,
+      #115e59);
+
+  color: white;
+
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+
+  letter-spacing: -0.01em;
+  text-decoration: none;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 20px rgba(15, 118, 110, 0.18);
+
+  transition:
+    transform 220ms cubic-bezier(.2, .8, .2, 1),
+    box-shadow 220ms cubic-bezier(.2, .8, .2, 1),
+    background 220ms cubic-bezier(.2, .8, .2, 1),
+    opacity 220ms cubic-bezier(.2, .8, .2, 1);
+
+  width: auto;
+  max-width: 100%;
+
+  white-space: nowrap;
+
+  touch-action: manipulation;
+}
+
+button:hover,
+.button:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 14px 30px rgba(15, 118, 110, 0.22);
+
+  background:
+    linear-gradient(135deg,
+      #115e59,
+      #134e4a);
+}
+
+button:active,
+.button:active {
+  transform: translateY(0);
+
+  box-shadow:
+    0 4px 12px rgba(15, 118, 110, 0.16);
+}
+
+/* --------------------------------------------------
+   Secondary Button Variant
+-------------------------------------------------- */
+
+.button-secondary {
+  background: white;
+
+  color: var(--text);
+
+  border:
+    1px solid rgba(15, 23, 42, 0.08);
+
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.05);
+}
+
+.button-secondary:hover {
+  background: #f8fafc;
+
+  color: var(--deep);
+
+  border-color:
+    rgba(37, 99, 235, 0.15);
+}
+
+/* --------------------------------------------------
+   Danger Button Variant (destructive actions — delete)
+-------------------------------------------------- */
+
+.button-danger {
+  background: white;
+
+  color: #b91c1c;
+
+  border: 1px solid rgba(185, 28, 28, 0.25);
+
+  box-shadow: none;
+}
+
+.button-danger:hover {
+  background: #fef2f2;
+
+  color: #991b1b;
+
+  border-color: rgba(185, 28, 28, 0.4);
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 6px 16px rgba(185, 28, 28, 0.12);
+}
+
+/* --------------------------------------------------
+   Compact Button Modifier (dense admin action rows)
+-------------------------------------------------- */
+
+.button-sm {
+  min-height: 36px;
+  padding: 8px 18px;
+  font-size: 0.85rem;
+  box-shadow: none;
+}
+
+.button-sm:hover {
+  transform: none;
+}
+
+/* --------------------------------------------------
+   Focus States (Accessibility)
+-------------------------------------------------- */
+
+button:focus-visible,
+.button:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.25);
+  outline-offset: 3px;
+}
+
+/* --------------------------------------------------
+   Mobile
+-------------------------------------------------- */
+
+@media (max-width: 768px) {
+
+  button,
+  .button {
+    width: 100%;
+    max-width: 100%;
+
+    min-height: 54px;
+
+    padding:
+      15px 22px;
+
+    font-size: 0.95rem;
+  }
+}

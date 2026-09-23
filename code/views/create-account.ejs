@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | <%= site.businessName %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+</head>
+
+<body>
+
+    <%- include("partials/nav") %>
+
+        <section id="step1" class="step active">
+
+            <span class="progress">Step 1 of 6</span>
+
+            <h1>Welcome.</h1>
+
+            <p>Let's set up your client portal so you can book sessions, access resources, and track your progress.</p>
+
+            <label for="firstName">
+                What's your legal name?
+            </label>
+
+            <p class="field-description">
+                Your legal name will be used for your Coaching Agreement and payment records.
+            </p>
+
+            <div class="input-group">
+                <input id="firstName" type="text" placeholder="Legal first name" autocomplete="given-name" required>
+            </div>
+
+            <div class="input-group">
+                <input id="lastName" type="text" placeholder="Legal last name" autocomplete="family-name" required>
+            </div>
+
+            <hr style="margin:32px 0;">
+
+            <label for="preferredName">
+                Preferred name <span style="font-weight: normal;">(optional)</span>
+            </label>
+
+            <p class="field-description">
+                We'll use this name throughout your dashboard, coaching sessions, and client portal.
+            </p>
+
+            <div class="input-group">
+                <input id="preferredName" type="text" placeholder="What name do you prefer?" autocomplete="nickname">
+            </div>
+
+            <label for="pronouns" style="margin-top:24px;">
+                Pronouns <span style="font-weight: normal;">(optional)</span>
+            </label>
+
+            <p class="field-description">
+                Share your pronouns that you'd like us to use during coaching and in communication.
+            </p>
+
+            <div class="input-group">
+                <input id="pronouns" type="text" placeholder="e.g. she/her, he/him, they/them">
+            </div>
+
+            <button type="button" onclick="saveName()" style="margin-top:30px;">
+                Continue
+            </button>
+
+
+        </section>
+
+        <section id="step2" class="step">
+
+            <span class="progress">Step 2 of 6</span>
+
+            <h1>
+                Nice to meet you,
+                <span id="welcomeName"></span>.
+            </h1>
+
+            <p>Which experience would you like to begin with?</p>
+
+            <% activeOfferings.forEach((offering)=> { %>
+
+                <div class="card selectable" onclick="selectProgram('<%= offering._id %>')">
+
+                    <div class="subtitle">
+                        <%= offering.name %>
+
+                            <% if (offering.spotsRemaining> 0) { %>
+                                (<%= offering.spotsRemaining %> Spots Remaining)
+                                    <% } %>
+                    </div>
+
+                    <% offering.description.split('\n').forEach((paragraph)=> { %>
+                        <p>
+                            <%= paragraph %>
+                        </p>
+                        <% }) %>
+
+                            <div class="price" style="margin-top: 14px;">
+                                $<%= offering.price %> · <%= offering.duration %>
+                            </div>
+
+                            <div style="margin-top: 22px;">
+                                <span class="button">
+                                    Select This Program
+                                </span>
+                            </div>
+
+                </div>
+
+                <% }) %>
+
+        </section>
+
+        <section id="step3" class="step">
+
+            <span class="progress">Step 3 of 6</span>
+
+            <h1>Let’s create your account.</h1>
+
+            <p>This keeps your sessions, progress, and booking history in one place.</p>
+
+            <div class="input-group">
+                <input type="text" id="email" name="email" placeholder="Email Address" autocomplete="email" required>
+            </div>
+
+            <div class="input-group">
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" id="password" placeholder="Password" required>
+
+                    <button type="button" class="toggle-password" onclick="togglePassword()"
+                        aria-label="Toggle password visibility">
+                        <img src="/images/eye-off.svg" alt="">
+                    </button>
+                </div>
+            </div>
+            <small id="passwordHelp">
+                Use at least 8 characters, including an uppercase letter, a lowercase letter, a number, and a special
+                character.
+            </small>
+
+            <p id="passwordError" style="display:none;color:red;"></p>
+
+            <div style="margin-top: 20px;">
+                <button type="button" onclick="createAccount()">
+                    Continue
+                </button>
+            </div>
+
+        </section>
+
+        <section id="step4" class="step">
+
+            <span class="progress">Step 4 of 6</span>
+
+            <h1>Check your email</h1>
+
+            <p>
+                We sent a 6-digit verification code to
+                <strong>
+                    <span id="verifyEmail"></span>.
+                </strong>
+            </p>
+            <p>
+                Code expires in 10 minutes.
+            </p>
+
+            <label>Enter verification code</label>
+
+            <div class="input-group">
+                <input id="code" type="text" inputmode="numeric" maxlength="6" placeholder=""
+                    autocomplete="one-time-code">
+            </div>
+
+            <button type="button" onclick="verifyCode()">
+                Verify
+            </button>
+
+            <p id="codeError" style="color:red; display:none;"></p>
+
+            <p>
+                Didn't get a code?
+                <a href="#" onclick="resendVerificationCode(); return false;">Resend code</a>
+            </p>
+
+            <p id="resendMessage" style="display:none;"></p>
+
+        </section>
+
+        <section id="step5" class="step">
+
+            <span class="progress">Step 5 of 6</span>
+
+            <h1>Review and confirm</h1>
+
+            <p>
+                Please review your program details below. Before continuing to payment, you'll need to accept the
+                Coaching Agreement.
+            </p>
+
+            <div class="card" style="text-align: left;">
+
+                <div class="subtitle" id="checkoutProgramName"></div>
+
+                <div class="price" id="checkoutProgramPrice" style="margin-top: 12px;"></div>
+
+                <p id="checkoutProgramDescription" style="margin-top: 18px;"></p>
+
+            </div>
+
+            <label style="display:flex; align-items:flex-start; gap:10px; margin-top:20px;">
+
+                <input type="checkbox" id="agreementAccepted" required>
+
+                <span>
+                    I have read and agree to the
+                    <a id="agreementLink" href="/coaching-agreement" target="_blank" rel="noopener">
+                        Coaching Agreement
+                    </a>
+                    and acknowledge that I have read the
+                    <a href="/privacy-policy" target="_blank" rel="noopener">
+                        Privacy Policy
+                    </a>.
+                    By checking this box and continuing to payment, I acknowledge that my electronic acceptance
+                    constitutes my agreement to the Coaching Agreement.
+                </span>
+                
+
+            </label>
+
+            <p style="margin-top: 24px;">
+                After you complete your payment, your client portal will be activated immediately.
+            </p>
+            <p id="agreementError" style="display:none; color:#c62828; margin-top:12px;">
+                You must accept the Coaching Agreement before continuing.
+            </p>
+
+            <form id="checkoutForm" action="/api/create-checkout-session" method="POST">
+
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                <input type="hidden" name="email" id="checkoutEmail">
+            
+                <input type="hidden" name="offeringId" id="checkoutOfferingId">
+            
+                <input type="hidden" name="priceId" id="priceId">
+            
+                <input type="hidden" name="agreementAccepted" id="agreementAcceptedInput" value="false">
+
+                <button id="checkoutButton" type="submit">
+                    Agree & Continue to Secure Payment
+                </button>
+            
+            </form>
+
+        </section>
+        <script>
+            window.offerings = <%- JSON.stringify(activeOfferings) %>;
+            window.CSRF_TOKEN = <%- JSON.stringify(csrfToken) %>;
+            window.SITE_BUSINESS_NAME = <%- JSON.stringify(site.businessName) %>;
+        </script>
+
+        <script src="/js/createAccount.js"></script>
+
+</body>
+
+</html>

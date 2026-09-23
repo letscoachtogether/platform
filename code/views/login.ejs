@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | <%= site.businessName %></title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+</head>
+
+<body>
+
+    <%- include("partials/nav") %>
+
+        <main class="auth-page">
+
+            <div class="auth-card">
+
+                <div class="auth-header">
+                    <h1>Welcome back</h1>
+                    <p>
+                        Sign in to continue to your coaching portal.
+                    </p>
+                </div>
+
+                <!-- Form -->
+                <form method="POST" action="/login" class="auth-form">
+
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                    <% if (typeof success !== "undefined" && success) { %>
+
+                        <div class="auth-success" style="color:#0f766e;">
+                            <%= success %>
+                        </div>
+
+                    <% } %>
+
+                    <div class="input-group">
+                        <input type="text" name="email" placeholder="Email" autocomplete="email" required>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="password-wrapper">
+                            <input type="password" name="password"  id="password" placeholder="Password" autocomplete="current-password"
+                                required>
+                        </div>
+                    </div>
+                    <% if (typeof error !== "undefined" && error) { %>
+
+                        <div class="auth-error" style="color:#c62828;">
+                            <%= error %>
+                        </div>
+
+                    <% } %>
+                    
+
+                    <button type="submit">
+                        Sign In
+                    </button>
+
+                </form>
+
+                <div class="auth-footer">
+
+                    <a href="/forgot-password">
+                        Forgot password?
+                    </a>
+
+                    <p>
+                        Don’t have an account?
+                        <a href="/create-account">Create one</a>
+                    </p>
+
+                </div>
+
+            </div>
+
+        </main>
+
+</body>
+
+<%- include("partials/footer") %>
+
+</html>

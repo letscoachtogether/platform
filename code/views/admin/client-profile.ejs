@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title><%= client.preferredName %> <%= client.lastName %> | Admin</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+    <%- include("../partials/dashboard-nav") %>
+
+    <div class="dashboard-layout">
+
+        <%- include("partials/admin-sidebar", { currentPage: "clients" }) %>
+
+    <main class="dashboard-main">
+
+        <a class="button button-secondary button-sm" href="/admin/clients">← All Clients</a>
+
+        <div class="dashboard-card" style="margin-top:20px;">
+
+            <div class="dashboard-actions" style="justify-content:space-between; align-items:flex-start;">
+
+                <div>
+                    <h1 style="margin:0;">
+                        <%= client.preferredName || client.firstName %> <%= client.lastName %>
+                    </h1>
+
+                    <p>
+                        View completed worksheets, coaching sessions and notes.
+                    </p>
+                </div>
+
+                <button type="button" class="button button-danger button-sm" onclick="document.getElementById('deleteClientModal').style.display='flex'; document.getElementById('deleteClientConfirmInput').focus();">
+                    Delete Client
+                </button>
+
+            </div>
+
+        </div>
+
+        <div id="deleteClientModal" class="modal">
+
+            <div class="modal-content">
+
+                <span class="close" onclick="document.getElementById('deleteClientModal').style.display='none';">&times;</span>
+
+                <h2>Delete <%= client.preferredName || client.firstName %> <%= client.lastName %>?</h2>
+
+                <p style="color:#b91c1c; font-weight:600;">
+                    This action is irreversible.
+                </p>
+
+                <p>
+                    This permanently deletes their account, every coaching container, testimonial submission, and
+                    referral they own, and their session worksheets/notes. It also cancels any of their upcoming
+                    Cal.com sessions. It does not take down an already-published testimonial.
+                </p>
+
+                <form method="POST" action="/admin/clients/<%= client._id %>/delete" id="deleteClientForm">
+
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                    <label for="deleteClientConfirmInput" style="display:block; margin-top:16px;">
+                        Type <strong><%= client.preferredName || client.firstName %> <%= client.lastName %></strong> to confirm.
+                    </label>
+
+                    <input
+                        type="text"
+                        id="deleteClientConfirmInput"
+                        class="delete-confirm-input"
+                        autocomplete="off"
+                        data-expected-name="<%= client.preferredName || client.firstName %> <%= client.lastName %>"
+                        style="margin-top:8px;">
+
+                    <div style="margin-top:20px; display:flex; gap:10px;">
+
+                        <button type="submit" class="button button-danger delete-confirm-submit" disabled>
+                            Permanently Delete Client
+                        </button>
+
+                        <button type="button" class="button button-secondary" onclick="document.getElementById('deleteClientModal').style.display='none';">
+                            Cancel
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             Coaching Containers
+        ========================== -->
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-actions" style="justify-content:space-between; align-items:center;">
+                <h2 style="margin:0;">Coaching Containers</h2>
+
+                <a class="button button-secondary button-sm" href="/admin/containers/new?clientId=<%= client._id %>">
+                    + Add Container
+                </a>
+            </div>
+
+            <% if (!allContainers || allContainers.length === 0) { %>
+
+                <p>No coaching containers yet.</p>
+
+            <% } else { %>
+
+                <div class="admin-table-wrapper">
+
+                    <table class="admin-table">
+
+                        <thead>
+
+                            <tr>
+                                <th>Offering</th>
+                                <th>Status</th>
+                                <th>Sessions</th>
+                                <th>Started</th>
+                                <th>Billing</th>
+                                <th></th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            <% allContainers.forEach(c => {
+                                const billing = billingByContainer.get(c._id.toString());
+                            %>
+
+                                <tr>
+
+                                    <td>
+                                        <%= c.offering ? c.offering.name : (c.name || "Offering deleted") %>
+                                    </td>
+
+                                    <td>
+                                        <span class="badge <%=
+                                            c.status === 'active' ? 'badge-active'
+                                            : c.status === 'scheduling-failed' ? 'badge-rejected'
+                                            : (c.status === 'awaiting-slot' || c.status === 'scheduling') ? 'badge-pending'
+                                            : 'badge-inactive'
+                                        %>">
+                                            <%= c.status %>
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <%= c.scheduling?.completed || 0 %> / <%= c.sessionsGranted || c.sessionCount %>
+                                    </td>
+
+                                    <td>
+                                        <% if (c.startedAt) { %>
+                                            <span data-datetime="<%= new Date(c.startedAt).toISOString() %>" data-format="date-numeric">
+                                                <%= new Date(c.startedAt).toLocaleDateString() %>
+                                            </span>
+                                        <% } else { %>
+                                            -
+                                        <% } %>
+                                    </td>
+
+                                    <td>
+                                        <% if (!billing) { %>
+                                            —
+                                        <% } else { %>
+                                            <%= (billing.amount / 100).toLocaleString("en-US", { style: "currency", currency: billing.currency.toUpperCase() }) %>
+                                            <br>
+                                            <% if (billing.cancelAtPeriodEnd) { %>
+                                                <span style="color:#b91c1c;">
+                                                    Ends <span data-datetime="<%= billing.currentPeriodEnd.toISOString() %>" data-format="date-numeric">
+                                                        <%= billing.currentPeriodEnd.toLocaleDateString() %>
+                                                    </span>
+                                                </span>
+                                            <% } else { %>
+                                                Next: <span data-datetime="<%= billing.currentPeriodEnd.toISOString() %>" data-format="date-numeric">
+                                                    <%= billing.currentPeriodEnd.toLocaleDateString() %>
+                                                </span>
+                                            <% } %>
+                                        <% } %>
+                                    </td>
+
+                                    <td>
+                                        <a class="button button-secondary button-sm" href="/admin/containers/<%= c._id %>/roadmap">
+                                            Roadmap
+                                        </a>
+
+                                        <button type="button" class="button button-danger button-sm" onclick="document.getElementById('deleteContainerModal-<%= c._id %>').style.display='flex';">
+                                            Delete
+                                        </button>
+
+                                        <% if (billing && !billing.cancelAtPeriodEnd) { %>
+
+                                            <form method="POST" action="/admin/containers/<%= c._id %>/cancel-billing"
+                                                style="display:inline-block; margin-top:6px;"
+                                                onsubmit="return confirm('Cancel this client\'s billing? Check &quot;Override&quot; first if you want to stop the very next charge regardless of the offering\'s cancellation notice period.');">
+
+                                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                                                <label style="display:block; font-size:0.85rem; font-weight:normal;">
+                                                    <input type="checkbox" name="override" value="true">
+                                                    Override Cancellation Window
+                                                </label>
+
+                                                <button type="submit" class="button button-danger button-sm">
+                                                    Cancel Billing
+                                                </button>
+
+                                            </form>
+
+                                        <% } %>
+                                    </td>
+
+                                </tr>
+
+                            <% }) %>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            <% } %>
+
+        </div>
+
+        <% if (allContainers) { allContainers.forEach(c => { %>
+
+            <%
+                const containerOfferingLabel = c.offering ? c.offering.name : (c.name || "Offering deleted");
+                const containerConfirmLabel = `${client.preferredName || client.firstName} ${client.lastName} — ${containerOfferingLabel}`;
+            %>
+
+            <div id="deleteContainerModal-<%= c._id %>" class="modal">
+
+                <div class="modal-content">
+
+                    <span class="close" onclick="this.closest('.modal').style.display='none';">&times;</span>
+
+                    <h2>Delete this coaching container?</h2>
+
+                    <p style="color:#b91c1c; font-weight:600;">
+                        This action is irreversible.
+                    </p>
+
+                    <p>
+                        This removes the container record and cancels any of its upcoming sessions already booked in
+                        Cal.com. Past sessions are left as-is.
+                    </p>
+
+                    <form method="POST" action="/admin/containers/<%= c._id %>/delete">
+
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                        <label style="display:block; margin-top:16px;">
+                            Type <strong><%= containerConfirmLabel %></strong> to confirm.
+                        </label>
+
+                        <input
+                            type="text"
+                            class="delete-confirm-input"
+                            autocomplete="off"
+                            data-expected-name="<%= containerConfirmLabel %>"
+                            style="margin-top:8px;">
+
+                        <div style="margin-top:20px; display:flex; gap:10px;">
+
+                            <button type="submit" class="button button-danger delete-confirm-submit" disabled>
+                                Permanently Delete Container
+                            </button>
+
+                            <button type="button" class="button button-secondary" onclick="this.closest('.modal').style.display='none';">
+                                Cancel
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        <% }) } %>
+
+
+        <!-- =========================
+             Worksheets
+        ========================== -->
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-actions">
+
+                <a
+                    class="button button-secondary"
+                    href="/admin/clients/<%= client._id %>/wheel-of-life">
+
+                    Wheel of Life
+
+                </a>
+
+                <a
+                class="button button-secondary"
+                href="/admin/clients/<%= client._id %>/values">
+
+                Values
+
+            </a>
+
+            </div>
+
+            <% if (pendingToolRequests.length > 0) { %>
+
+                <h2 style="margin-top:30px;">
+                    Tool Access Requests
+                </h2>
+
+                <div class="admin-table-wrapper">
+
+                    <table class="admin-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Title</th>
+                                <th></th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        <% pendingToolRequests.forEach(resource => { %>
+
+                            <tr>
+
+                                <td>
+                                    <%= resource.resourceId.title %>
+                                </td>
+
+                                <td>
+
+                                    <form method="POST"
+                                        action="/admin/clients/<%= client._id %>/resources/<%= resource.resourceId.slug %>/unlock">
+
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                                        <button class="button button-secondary">
+                                            Unlock
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+                        <% }) %>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            <% } %>
+
+            <% if (pendingSessionToolRequests.length > 0) { %>
+
+                <h2 style="margin-top:30px;">
+                    Session Tool Requests
+                </h2>
+
+                <div class="admin-table-wrapper">
+
+                    <table class="admin-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Title</th>
+                                <th>Session</th>
+                                <th></th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        <% pendingSessionToolRequests.forEach(t => { %>
+
+                            <tr>
+
+                                <td>
+                                    <%= t.resource.title %>
+                                </td>
+
+                                <td>
+                                    <% if (t.sessionStart) { %>
+                                        <span data-datetime="<%= new Date(t.sessionStart).toISOString() %>" data-format="date-short">
+                                            <%= new Date(t.sessionStart).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) %>
+                                        </span>
+                                    <% } else { %>
+                                        —
+                                    <% } %>
+                                </td>
+
+                                <td>
+
+                                    <form method="POST"
+                                        action="/admin/clients/<%= client._id %>/resources/<%= t.resource.slug %>/unlock">
+
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                                        <button class="button button-secondary">
+                                            Unlock
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+                        <% }) %>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            <% } %>
+
+            <h2 style="margin-top:30px;">
+                Completed Worksheets & Tools
+            </h2>
+
+            <% if (completedResources.length === 0) { %>
+
+                <p>No completed resources yet.</p>
+
+            <% } else { %>
+
+                <div class="admin-table-wrapper">
+
+                    <table class="admin-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Title</th>
+                                <th>Type</th>
+                                <th>Completed</th>
+                                <th></th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        <% completedResources.forEach(resource => { %>
+
+                            <tr>
+
+                                <td>
+                                    <%= resource.resourceId.title %>
+                                </td>
+
+                                <td>
+                                    <%= resource.resourceId.type %>
+                                </td>
+
+                                <td>
+                                    <% if (resource.completedAt) { %>
+                                        <span data-datetime="<%= resource.completedAt.toISOString() %>" data-format="date-numeric">
+                                            <%= resource.completedAt.toLocaleDateString() %>
+                                        </span>
+                                    <% } else { %>
+                                        -
+                                    <% } %>
+                                </td>
+
+                                <td>
+
+                                    <a
+                                        class="button button-secondary"
+                                        href="/admin/clients/<%= client._id %>/resources/<%= resource.resourceId.slug %>">
+
+                                        View
+
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        <% }) %>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            <% } %>
+
+        </div>
+
+
+        <!-- =========================
+             Sessions
+        ========================== -->
+
+        <div class="dashboard-card">
+
+            <h2>Coaching Sessions</h2>
+
+            <% if (!sessions || sessions.length === 0) { %>
+
+                <p>No coaching sessions.</p>
+
+            <% } else { %>
+
+                <div class="admin-table-wrapper">
+
+                    <table class="admin-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>#</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Worksheet</th>
+                                <th>Coach Notes</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            <% sessions.forEach(session => { %>
+
+                                <tr>
+                                
+                                    <td>Session <%= session.sessionNumber %></td>
+                                
+                                    <td data-datetime="<%= new Date(session.start).toISOString() %>" data-format="date-numeric">
+                                        <%= new Date(session.start).toLocaleDateString() %>
+                                    </td>
+                                
+                                    <td>
+                                        <%= session.status %>
+                                    </td>
+                                
+                                    <td>
+                                
+                                        <% if (session.worksheetCompleted) { %>
+                                
+                                            <a
+                                            class="button button-secondary"
+                                            href="/admin/clients/<%= client._id %>/sessions/<%= session.bookingUid %>/worksheet">
+                                        
+                                            View Worksheet
+                                        
+                                        </a>
+                                        
+                                
+                                        <% } else { %>
+                                
+                                            —
+                                
+                                        <% } %>
+                                
+                                    </td>
+                                
+                                    <td>
+                                
+                                        <a
+                                        class="button button-secondary"
+                                        href="/admin/sessions/<%= session.bookingUid %>/notes?clientId=<%= client._id %>&start=<%= encodeURIComponent(session.start) %>">
+
+                                        <%= session.hasNotes ? "View Notes" : "Add Notes" %>
+                                    
+                                    </a>
+                                    
+                                
+                                    </td>
+                                
+                                </tr>
+                                
+                                <% }) %>
+                                
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            <% } %>
+
+        </div>
+
+            <% if (client.agreementAcceptances && client.agreementAcceptances.length > 0) { %>
+
+                <h2 style="margin-top:30px;">
+                    Agreement Acceptance History
+                </h2>
+
+                <div class="admin-table-wrapper">
+
+                    <table class="admin-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Version</th>
+                                <th>Accepted</th>
+                                <th>IP Address</th>
+                                <th>User Agent</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        <% [...client.agreementAcceptances].reverse().forEach(a => { %>
+
+                            <tr>
+
+                                <td>
+                                    <%= a.version %>
+                                </td>
+
+                                <td>
+                                    <span data-datetime="<%= a.acceptedAt.toISOString() %>" data-format="date-numeric">
+                                        <%= a.acceptedAt.toLocaleDateString() %>
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <%= a.ipAddress || "—" %>
+                                </td>
+
+                                <td style="max-width:300px; overflow-wrap:break-word;">
+                                    <%= a.userAgent || "—" %>
+                                </td>
+
+                            </tr>
+
+                        <% }) %>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            <% } %>
+
+    </main>
+
+    </div>
+
+    <script src="/js/localizeDates.js"></script>
+
+    <script>
+        window.addEventListener("click", e => {
+            if (e.target.classList.contains("modal")) {
+                e.target.style.display = "none";
+            }
+        });
+
+        document.querySelectorAll(".delete-confirm-input").forEach(input => {
+            input.addEventListener("input", () => {
+                const submit = input.closest("form").querySelector(".delete-confirm-submit");
+                submit.disabled = input.value !== input.dataset.expectedName;
+            });
+        });
+    </script>
+
+</body>
+
+</html>

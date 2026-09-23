@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Add More Sessions | <%= site.businessName %></title>
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <nav class="top-nav">
+        <a class="logo" href="/client-dashboard/main">
+            <%= site.businessName %>
+        </a>
+    </nav>
+
+    <section class="container" style="margin-top:150px;">
+
+        <h1>Add More Sessions</h1>
+
+        <p>
+            Ready to keep going? Pick a program below to start another coaching engagement.
+        </p>
+
+        <% if (!activeOfferings.length) { %>
+
+            <div class="card worksheet-question">
+                <p>There aren't any programs available to book right now — reach out and we'll get you sorted.</p>
+            </div>
+
+        <% } else { %>
+
+            <div id="offeringGrid">
+
+                <% activeOfferings.forEach(offering => { %>
+
+                    <div class="card selectable"
+                        onclick="selectOffering('<%= offering._id %>', '<%= offering.name.replace(/'/g, "\\'") %>', '<%= offering.price %>', '<%= offering.duration.replace(/'/g, "\\'") %>')">
+
+                        <div class="subtitle">
+                            <%= offering.name %>
+                            <% if (offering.spotsRemaining > 0) { %>
+                                (<%= offering.spotsRemaining %> Spots Remaining)
+                            <% } %>
+                        </div>
+
+                        <% offering.description.split('\n').forEach(paragraph => { %>
+                            <p><%= paragraph %></p>
+                        <% }) %>
+
+                        <div class="price" style="margin-top: 14px;">
+                            $<%= offering.price %> · <%= offering.duration %>
+                        </div>
+
+                        <div style="margin-top: 22px;">
+                            <span class="button">Select This Program</span>
+                        </div>
+
+                    </div>
+
+                <% }) %>
+
+            </div>
+
+            <section id="checkoutSection" class="hidden" style="margin-top:40px;">
+
+                <div class="card" style="text-align: left;">
+                    <div class="subtitle" id="checkoutProgramName"></div>
+                    <div class="price" id="checkoutProgramPrice" style="margin-top: 12px;"></div>
+                </div>
+
+                <label style="display:flex; align-items:flex-start; gap:10px; margin-top:20px;">
+
+                    <input type="checkbox" id="agreementAccepted" required>
+
+                    <span>
+                        I have read and agree to the
+                        <a id="agreementLink" href="/coaching-agreement" target="_blank" rel="noopener">
+                            Coaching Agreement
+                        </a>
+                        and acknowledge that my electronic acceptance constitutes my agreement to it.
+                    </span>
+
+                </label>
+
+                <p id="agreementError" style="display:none; color:#c62828; margin-top:12px;">
+                    You must accept the Coaching Agreement before continuing.
+                </p>
+
+                <form id="checkoutForm" action="/client-dashboard/add-sessions/checkout" method="POST" style="margin-top:24px;">
+
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" name="offeringId" id="checkoutOfferingId">
+                    <input type="hidden" name="agreementAccepted" id="agreementAcceptedInput" value="false">
+
+                    <button id="checkoutButton" type="submit">
+                        Agree &amp; Continue to Secure Payment
+                    </button>
+
+                </form>
+
+            </section>
+
+        <% } %>
+
+        <div style="margin-top: 32px; text-align: center">
+            <a class="button button-secondary" href="/client-dashboard/main">Back to Dashboard</a>
+        </div>
+
+    </section>
+
+    <script>
+        const clientFirstName = <%- JSON.stringify(clientFirstName) %>;
+        const clientLastName = <%- JSON.stringify(clientLastName) %>;
+
+        function selectOffering(offeringId, name, price, duration) {
+            document.getElementById("checkoutOfferingId").value = offeringId;
+            document.getElementById("checkoutProgramName").textContent = name;
+            document.getElementById("checkoutProgramPrice").textContent = `$${price} · ${duration}`;
+
+            const params = new URLSearchParams({
+                offeringId,
+                firstName: clientFirstName || "",
+                lastName: clientLastName || ""
+            });
+            document.getElementById("agreementLink").href = `/coaching-agreement?${params.toString()}`;
+
+            document.getElementById("checkoutSection").classList.remove("hidden");
+            document.getElementById("checkoutSection").scrollIntoView({ behavior: "smooth" });
+        }
+
+        const agreementCheckbox = document.getElementById("agreementAccepted");
+        const agreementAcceptedInput = document.getElementById("agreementAcceptedInput");
+        const checkoutForm = document.getElementById("checkoutForm");
+        const agreementError = document.getElementById("agreementError");
+
+        if (checkoutForm) {
+            checkoutForm.addEventListener("submit", (e) => {
+                if (!agreementCheckbox.checked) {
+                    e.preventDefault();
+                    agreementError.style.display = "block";
+                    return;
+                }
+                agreementAcceptedInput.value = "true";
+            });
+        }
+    </script>
+
+</body>
+
+</html>

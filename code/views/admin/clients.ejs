@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Clients | <%= site.businessName %> Admin</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+
+    <%- include("../partials/dashboard-nav") %>
+
+    <div class="dashboard-layout">
+
+        <%- include("partials/admin-sidebar", { currentPage: "clients" }) %>
+
+        <main class="dashboard-main">
+
+            <div class="admin-page-header">
+                <div>
+                    <h1>Clients</h1>
+                    <p>Manage your coaching clients, programs, and upcoming sessions.</p>
+                </div>
+
+                <a class="button" href="/admin/clients/new">
+                    + Add Client
+                </a>
+            </div>
+
+            <% if (clientRows.length === 0) { %>
+
+                <div class="admin-empty">
+                    <p>You don't have any clients yet.</p>
+                </div>
+
+            <% } else { %>
+
+                <input
+                    type="text"
+                    id="clientSearch"
+                    placeholder="Search clients by name..."
+                    style="width:100%; max-width:360px; padding:12px 16px; border:1px solid #e5e7eb; border-radius:10px; margin-bottom:20px; font-size:0.95rem;">
+
+                <div class="session-list" id="clientList">
+
+                    <% clientRows.forEach(row => { %>
+
+                        <div class="session-item" data-client-name="<%= (row.client.preferredName || row.client.firstName || '').toLowerCase() %> <%= (row.client.lastName || '').toLowerCase() %>">
+
+                            <div class="session-left">
+
+                                <h3>
+                                    <%= row.client.preferredName || row.client.firstName %>
+                                    <%= row.client.lastName %>
+                                </h3>
+
+                                <div class="session-meta">
+
+                                    <span>
+
+                                        Program:
+
+                                        <%= row.container
+                                            ? row.container.name || "Active Coaching"
+                                            : "No active program" %>
+
+                                    </span>
+
+                                    <span>
+
+                                        Next Session:
+
+                                        <% if (row.nextSession) { %>
+
+                                            <span data-datetime="<%= new Date(row.nextSession.start).toISOString() %>" data-format="date-numeric">
+                                                <%= new Date(row.nextSession.start).toLocaleDateString() %>
+                                            </span>
+
+                                            at
+
+                                            <span data-datetime="<%= new Date(row.nextSession.start).toISOString() %>" data-format="time">
+                                                <%= new Date(row.nextSession.start).toLocaleTimeString([], {
+                                                    hour: "numeric",
+                                                    minute: "2-digit"
+                                                }) %>
+                                            </span>
+
+                                        <% } else { %>
+
+                                            None scheduled
+
+                                        <% } %>
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="session-right">
+
+                                <a
+                                    class="button button-secondary"
+                                    href="/admin/clients/<%= row.client._id %>">
+
+                                    View Client
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    <% }) %>
+
+                </div>
+
+            <% } %>
+
+        </main>
+
+    </div>
+
+    <script>
+        const searchInput = document.getElementById("clientSearch");
+
+        if (searchInput) {
+            searchInput.addEventListener("input", () => {
+                const query = searchInput.value.trim().toLowerCase();
+
+                document.querySelectorAll("#clientList .session-item").forEach(row => {
+                    row.hidden = !row.dataset.clientName.includes(query);
+                });
+            });
+        }
+    </script>
+
+    <script src="/js/localizeDates.js"></script>
+
+</body>
+
+</html>

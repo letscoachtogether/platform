@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Add Container</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+    <%- include("../partials/dashboard-nav") %>
+
+<section class="admin-page" style="max-width:700px;">
+
+    <a class="button button-secondary button-sm" href="/admin/containers">← Back to Containers</a>
+
+    <br><br>
+
+    <% if (error) { %>
+        <div class="banner banner-error">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <form method="POST" action="/admin/containers/new">
+
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+        <div class="card worksheet-question">
+
+            <p>
+                Gives an existing client a fresh coaching container — no payment involved,
+                same as adding a free client. They land in the same "choose your weekly
+                session time" state a paying client would.
+            </p>
+
+            <p>Client</p>
+
+            <select name="clientId" required>
+
+                <option value="" disabled <%= !selectedClientId ? "selected" : "" %>>Select a client</option>
+
+                <% clients.forEach(client => { %>
+
+                    <option value="<%= client._id %>" <%= String(client._id) === String(selectedClientId) ? "selected" : "" %>>
+                        <%= client.preferredName || client.firstName %> <%= client.lastName %> (<%= client.email %>)
+                    </option>
+
+                <% }) %>
+
+            </select>
+
+            <p>Offering</p>
+
+            <select name="offeringId" required>
+
+                <option value="" disabled selected>Select an offering</option>
+
+                <% offerings.forEach(offering => { %>
+
+                    <option value="<%= offering._id %>">
+                        <%= offering.name %> — <%= offering.sessionCount %> session<%= offering.sessionCount === 1 ? "" : "s" %>
+                    </option>
+
+                <% }) %>
+
+            </select>
+
+            <p style="margin-top:8px; font-size:0.85rem; color:var(--muted, #6c746d);">
+                Determines the number of sessions and the Cal.com event type this container gets — no charge is made.
+            </p>
+
+            <br><br>
+
+            <button class="button" type="submit">
+                Create Container
+            </button>
+
+        </div>
+
+    </form>
+
+</section>
+
+</body>
+
+</html>

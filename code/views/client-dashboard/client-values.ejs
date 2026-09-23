@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Values Inventory | <%= site.businessName %></title>
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <nav class="top-nav">
+        <a class="logo" href="/client-dashboard/main">
+            <%= site.businessName %>
+        </a>
+    </nav>
+
+    <section class="container" style="margin-top:150px;">
+
+        <h1>My Values Inventory</h1>
+
+        <p>
+            A read-only summary of the values you've sorted. Head to the Values Sorting exercise if you'd like to
+            update it.
+        </p>
+
+        <% if (!valuesExercise || !valuesExercise.completed) { %>
+
+            <div class="card worksheet-question">
+                <p>You haven't completed the Values Sorting exercise yet.</p>
+            </div>
+
+            <div style="margin-top: 32px; text-align: center">
+                <a class="button" href="/client-dashboard/allValues">Start Values Sorting</a>
+            </div>
+
+        <% } else { %>
+
+            <div class="card worksheet-question">
+                <label>Selected Values</label>
+                <p><%= (valuesExercise.selectedValues || []).join(", ") || "None recorded" %></p>
+            </div>
+
+            <div class="card worksheet-question">
+                <label>Category 1</label>
+                <p>
+                    <%= (valuesExercise.categories?.category1 || []).join(", ") || "None recorded" %>
+                </p>
+                <% if (valuesExercise.coreValues?.category1) { %>
+                    <p><strong>Core value:</strong> <%= valuesExercise.coreValues.category1 %></p>
+                <% } %>
+            </div>
+
+            <div class="card worksheet-question">
+                <label>Category 2</label>
+                <p>
+                    <%= (valuesExercise.categories?.category2 || []).join(", ") || "None recorded" %>
+                </p>
+                <% if (valuesExercise.coreValues?.category2) { %>
+                    <p><strong>Core value:</strong> <%= valuesExercise.coreValues.category2 %></p>
+                <% } %>
+            </div>
+
+            <div class="card worksheet-question">
+                <label>Category 3</label>
+                <p>
+                    <%= (valuesExercise.categories?.category3 || []).join(", ") || "None recorded" %>
+                </p>
+                <% if (valuesExercise.coreValues?.category3) { %>
+                    <p><strong>Core value:</strong> <%= valuesExercise.coreValues.category3 %></p>
+                <% } %>
+            </div>
+
+            <% if (valuesExercise.completedAt) { %>
+                <p style="color: var(--muted);">
+                    Completed <span data-datetime="<%= new Date(valuesExercise.completedAt).toISOString() %>" data-format="date-short">
+                        <%= new Date(valuesExercise.completedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) %>
+                    </span>
+                </p>
+            <% } %>
+
+            <div style="margin-top: 32px; text-align: center">
+                <a class="button" href="/client-dashboard/allValues">Redo Values Sorting</a>
+            </div>
+
+        <% } %>
+
+        <div style="margin-top: 16px; text-align: center">
+            <a class="button button-secondary" href="/client-dashboard/main">Back to Dashboard</a>
+        </div>
+
+    </section>
+
+    <script src="/js/localizeDates.js"></script>
+
+</body>
+
+</html>

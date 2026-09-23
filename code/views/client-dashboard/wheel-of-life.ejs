@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wheel of Life</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+    <nav class="top-nav">
+        <a class="logo" href="/client-dashboard/main"><%= site.businessName %></a>
+    </nav>
+
+
+    <% if (!scores) { %>
+        <section class="wheel-panel">
+            <div class="card">
+
+                <h1>Wheel of Life</h1>
+
+                <p class="subtitle" style="padding-bottom:10px;">
+                    Rate each area of your life from 1–10 based on how fulfilled you are right now.
+                </p>
+
+                <aside class="controls-panel">
+                    <div class="card">
+                        <div id="controls"></div>
+                    </div>
+                </aside>
+
+                <canvas id="wheelCanvas"></canvas>
+
+                <div style="text-align:center; margin-top:20px;">
+                    <button id="saveWheelBtn">
+                        Save Results
+                    </button>
+                </div>
+
+                <div id="saveMessage" class="hidden" style="margin-top:20px; text-align:center;">
+                </div>
+
+            </div>
+        </section>
+
+
+     <%   } %>
+        <% if (scores) { %>
+            
+            <section class="container" style="padding-top: 100px;">
+                <h1>Wheel of Life</h1>
+                <p> Completed: <%= completedAt %> </p>
+
+                <div class="card" style="max-width: 800; margin: 0 auto; text-align: center;">
+
+                    <canvas id="resultsWheelCanvas"></canvas>
+                    <script>
+                        window.WHEEL_DATA = JSON.parse(`<%- JSON.stringify(
+                            (scores || []).reduce((acc, item) => {
+                                acc[item.name] = {
+                                    value: item.value,
+                                    color: item.color
+                                };
+                                return acc;
+                            }, {})
+                        ) %>`);
+                    </script>
+
+                </div>
+                <script type="module" src="/js/wheelResults.js"></script>
+
+
+
+            </section>
+           
+
+            
+            <div class="dashboard-layout" style="text-align: center">
+                <% if (!adminView) { %>
+                <div style="margin-top:32px; text-align: center">
+                    <button id="newWheelBtn">
+                        New Wheel of Life
+                    </button>
+                </div>
+
+                <div style="margin-top: 32px; text-align: center">
+                    <a class="button" href="/client-dashboard/resources">Back to Resources</a>
+                </div>
+                <% } else { %>
+                <div style="margin-top: 32px; text-align: center">
+                    <a class="button button-secondary" href="/admin/clients/<%= client._id %>">← Back to
+                        <%= client.preferredName || client.firstName %></a>
+                </div>
+                <% } %>
+            <section id="newWheelSection" class="wheel-panel hidden">
+
+                <div class="card">
+            
+                    <h1>New Wheel of Life</h1>
+            
+                    <p class="subtitle">
+                        Rate each area of your life from 1–10 based on how fulfilled you are right now.
+                    </p>
+            
+                    <aside class="controls-panel">
+                        <div class="card">
+                            <div id="newWheelControls"></div>
+                        </div>
+                    </aside>
+            
+                    <canvas id="newWheelCanvas"></canvas>
+            
+                    <div style="text-align:center; margin-top:20px;">
+                        <button id="saveNewWheelBtn">
+                            Save Results
+                        </button>
+                    </div>
+            
+                    <div id="newWheelMessage" class="hidden"></div>
+            
+                </div>
+            
+            </section>
+
+      <%      } %>
+      <script>
+        window.CSRF_TOKEN = <%- JSON.stringify(csrfToken) %>;
+      </script>
+      <script type="module" src="/js/wheelEditor.js"></script>
+</body>
+
+</html>

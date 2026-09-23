@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Resources</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+
+    <%- include("../partials/dashboard-nav") %>
+
+    <div class="dashboard-layout">
+
+        <%- include("partials/admin-sidebar", { currentPage: "resources" }) %>
+
+        <main class="dashboard-main">
+
+            <div class="admin-page-header">
+                <div>
+                    <h1>Resources</h1>
+                    <p>Create, edit, organize, activate, and delete worksheets, tools, and lists.</p>
+                </div>
+
+                <a class="button" href="/admin/resources/new">
+                    + New Resource
+                </a>
+            </div>
+
+            <% if (!resources.length) { %>
+
+                <div class="admin-empty">
+                    <p>No resources yet. Create one to get started.</p>
+                </div>
+
+            <% } else { %>
+
+                <div class="admin-list">
+
+                    <% resources.forEach(resource => { %>
+
+                        <div class="admin-row">
+
+                            <div class="admin-row-main">
+
+                                <div class="admin-row-title">
+                                    <%= resource.title %>
+                                    <span class="badge <%= resource.active ? 'badge-active' : 'badge-inactive' %>">
+                                        <%= resource.active ? "Active" : "Inactive" %>
+                                    </span>
+                                </div>
+
+                                <div class="admin-row-meta">
+                                    <%= resource.type %> · <%= resource.category %>
+                                </div>
+
+                            </div>
+
+                            <div class="admin-row-actions">
+
+                                <a class="button button-secondary button-sm" href="/admin/resources/<%= resource._id %>/edit">
+                                    Edit
+                                </a>
+
+                                <form method="POST" action="/admin/resources/<%= resource._id %>/toggle">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <button class="button button-secondary button-sm">
+                                        <%= resource.active ? "Deactivate" : "Activate" %>
+                                    </button>
+                                </form>
+
+                                <form method="POST" action="/admin/resources/<%= resource._id %>/delete"
+                                    onsubmit="return confirm('Delete this resource?');">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <button class="button button-danger button-sm">
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    <% }) %>
+
+                </div>
+
+            <% } %>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

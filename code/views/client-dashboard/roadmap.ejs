@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Coaching Roadmap</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+</head>
+
+
+<body>
+
+
+    <nav class="top-nav">
+        <a class="logo" href="/client-dashboard/main">
+            <%= site.businessName %>
+        </a>
+    </nav>
+
+    <section class="container" style="margin-top:150px;">
+        <main class="dashboard-main">
+
+            <h1>Your Coaching Roadmap</h1>
+
+            <p>
+                Goals for this coaching engagement, and a plan for each session — editable by
+                <%= isAdmin ? "you or your client" : "you or your coach" %>, so it stays a living
+                document as the work progresses.
+            </p>
+
+            <% if (container.roadmap && container.roadmap.updatedAt) { %>
+                <p style="color:var(--muted, #6c746d); font-size:0.9rem;">
+                    Last updated by <%= container.roadmap.updatedBy === "admin" ? "your coach" : "you" %>
+                    on <span data-datetime="<%= new Date(container.roadmap.updatedAt).toISOString() %>" data-format="date-short">
+                        <%= new Date(container.roadmap.updatedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) %>
+                    </span>
+                </p>
+            <% } %>
+
+            <form
+                method="POST"
+                action="<%= isAdmin ? `/admin/containers/${container._id}/roadmap` : "/client-dashboard/roadmap" %>">
+
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                <div class="card worksheet-question">
+
+                    <label for="goals">Goals for this coaching engagement</label>
+
+                    <textarea
+                        id="goals"
+                        name="goals"
+                        rows="4"
+                        placeholder="What are you working toward together?"><%= container.roadmap?.goals || "" %></textarea>
+
+                </div>
+
+                <h2 style="margin-top:30px;">Session-by-Session Plan</h2>
+
+                <div id="sessions-container">
+
+                    <% (container.roadmap?.sessions || []).forEach((session, index) => { %>
+
+                        <div class="card worksheet-question">
+
+                            <label for="session-title-<%= index %>">
+                                Session <%= index + 1 %> Title
+                            </label>
+
+                            <input
+                                id="session-title-<%= index %>"
+                                type="text"
+                                name="sessions[<%= index %>][title]"
+                                value="<%= session.title %>">
+
+                            <label for="session-agenda-<%= index %>" style="margin-top:12px;">
+                                What was the session agenda?
+                            </label>
+
+                            <textarea
+                                id="session-agenda-<%= index %>"
+                                name="sessions[<%= index %>][agenda]"
+                                rows="3"
+                                placeholder="Focus, exercises, what to bring..."><%= session.agenda %></textarea>
+
+                            <label for="session-takeaway-<%= index %>" style="margin-top:12px;">
+                                What was the main takeaway?
+                            </label>
+
+                            <textarea
+                                id="session-takeaway-<%= index %>"
+                                name="sessions[<%= index %>][takeaway]"
+                                rows="3"
+                                placeholder="The key insight or decision from this session..."><%= session.takeaway %></textarea>
+
+                            <label for="session-followup-<%= index %>" style="margin-top:12px;">
+                                Follow-up tasks / accountability
+                            </label>
+
+                            <textarea
+                                id="session-followup-<%= index %>"
+                                name="sessions[<%= index %>][followUp]"
+                                rows="3"
+                                placeholder="What's the client committing to before next time..."><%= session.followUp %></textarea>
+
+                        </div>
+
+                    <% }) %>
+
+                </div>
+
+                <div style="margin-top: 16px; text-align: center">
+                    <button type="button" class="button button-secondary" onclick="addSession()">
+                        + Add Session
+                    </button>
+                </div>
+
+                <div style="margin-top: 32px; text-align: center">
+                    <button type="submit" class="button primary">
+                        Save Roadmap
+                    </button>
+                </div>
+
+            </form>
+
+            <% if (!isAdmin) { %>
+                <div style="margin-top: 16px; text-align: center">
+                    <a class="button button-secondary" href="/client-dashboard/main">Back to Dashboard</a>
+                </div>
+            <% } else { %>
+                <div style="margin-top: 16px; text-align: center">
+                    <a class="button button-secondary" href="/admin/clients/<%= client._id %>">← Back to
+                        <%= client.preferredName || client.firstName %></a>
+                </div>
+            <% } %>
+
+        </main>
+
+    </section>
+
+    <script src="/js/localizeDates.js"></script>
+
+    <script>
+
+    let sessionIndex = <%= (container.roadmap?.sessions || []).length %>;
+
+    function addSession() {
+
+        const container = document.getElementById("sessions-container");
+
+        const div = document.createElement("div");
+
+        div.className = "card worksheet-question";
+
+        const num = sessionIndex + 1;
+
+        div.innerHTML = `
+
+            <label for="session-title-${sessionIndex}">
+                Session ${num} Title
+            </label>
+
+            <input
+                id="session-title-${sessionIndex}"
+                type="text"
+                name="sessions[${sessionIndex}][title]">
+
+            <label for="session-agenda-${sessionIndex}" style="margin-top:12px;">
+                What was the session agenda?
+            </label>
+
+            <textarea
+                id="session-agenda-${sessionIndex}"
+                name="sessions[${sessionIndex}][agenda]"
+                rows="3"
+                placeholder="Focus, exercises, what to bring..."></textarea>
+
+            <label for="session-takeaway-${sessionIndex}" style="margin-top:12px;">
+                What was the main takeaway?
+            </label>
+
+            <textarea
+                id="session-takeaway-${sessionIndex}"
+                name="sessions[${sessionIndex}][takeaway]"
+                rows="3"
+                placeholder="The key insight or decision from this session..."></textarea>
+
+            <label for="session-followup-${sessionIndex}" style="margin-top:12px;">
+                Follow-up tasks / accountability
+            </label>
+
+            <textarea
+                id="session-followup-${sessionIndex}"
+                name="sessions[${sessionIndex}][followUp]"
+                rows="3"
+                placeholder="What's the client committing to before next time..."></textarea>
+
+        `;
+
+        container.appendChild(div);
+
+        sessionIndex++;
+
+    }
+
+    </script>
+
+</body>
+
+</html>

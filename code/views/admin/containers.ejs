@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Coaching Containers</title>
+
+    <link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+
+    <%- include("../partials/dashboard-nav") %>
+
+    <div class="dashboard-layout">
+
+        <%- include("partials/admin-sidebar", { currentPage: "containers" }) %>
+
+        <main class="dashboard-main">
+
+            <div class="admin-page-header">
+                <div>
+                    <h1>Coaching Containers</h1>
+                    <p>Every client's coaching engagement — which offering it's from, its status, and session progress.</p>
+                </div>
+
+                <a class="button" href="/admin/containers/new">
+                    + New Container
+                </a>
+            </div>
+
+            <div style="margin-bottom:20px; display:flex; gap:10px; flex-wrap:wrap;">
+
+                <a
+                    class="button <%= statusFilter === '' ? '' : 'button-secondary' %> button-sm"
+                    href="/admin/containers">
+
+                    All
+
+                </a>
+
+                <% statuses.forEach(status => { %>
+
+                    <a
+                        class="button <%= statusFilter === status ? '' : 'button-secondary' %> button-sm"
+                        href="/admin/containers?status=<%= status %>">
+
+                        <%= status %>
+
+                    </a>
+
+                <% }) %>
+
+            </div>
+
+            <% if (!containers.length) { %>
+
+                <div class="admin-empty">
+                    <p>No coaching containers<%= statusFilter ? ` with status "${statusFilter}"` : "" %> yet.</p>
+                </div>
+
+            <% } else { %>
+
+                <div class="admin-list">
+
+                    <% containers.forEach(container => { %>
+
+                        <div class="admin-row">
+
+                            <div class="admin-row-main">
+
+                                <div class="admin-row-title">
+
+                                    <% if (container.user) { %>
+                                        <a href="/admin/clients/<%= container.user._id %>">
+                                            <%= container.user.preferredName || container.user.firstName %> <%= container.user.lastName %>
+                                        </a>
+                                    <% } else { %>
+                                        (client deleted)
+                                    <% } %>
+
+                                    <span class="badge <%=
+                                        container.status === 'active' ? 'badge-active'
+                                        : container.status === 'scheduling-failed' ? 'badge-rejected'
+                                        : (container.status === 'awaiting-slot' || container.status === 'scheduling') ? 'badge-pending'
+                                        : 'badge-inactive'
+                                    %>">
+                                        <%= container.status %>
+                                    </span>
+
+                                </div>
+
+                                <div class="admin-row-meta">
+                                    <%= container.offering ? container.offering.name : (container.name || "Offering deleted") %>
+                                    ·
+                                    <%= container.scheduling?.completed || 0 %> / <%= container.sessionsGranted || container.sessionCount %> sessions scheduled
+                                    <% if (container.startedAt) { %>
+                                        · started
+                                        <span data-datetime="<%= new Date(container.startedAt).toISOString() %>" data-format="date-numeric">
+                                            <%= new Date(container.startedAt).toLocaleDateString() %>
+                                        </span>
+                                    <% } %>
+                                </div>
+
+                                <% if (container.status === "scheduling-failed" && container.scheduling?.error) { %>
+                                    <div class="admin-row-meta" style="color:#b91c1c;">
+                                        <%= container.scheduling.error %>
+                                        <% if (container.scheduling.failedAt) { %>
+                                            (<span data-datetime="<%= new Date(container.scheduling.failedAt).toISOString() %>" data-format="date-numeric">
+                                                <%= new Date(container.scheduling.failedAt).toLocaleDateString() %>
+                                            </span>)
+                                        <% } %>
+                                    </div>
+                                <% } %>
+
+                            </div>
+
+                            <div class="admin-row-actions">
+
+                                <% if (container.user) { %>
+                                    <a class="button button-secondary button-sm" href="/admin/clients/<%= container.user._id %>">
+                                        View Client
+                                    </a>
+                                <% } %>
+
+                                <a class="button button-secondary button-sm" href="/admin/containers/<%= container._id %>/roadmap">
+                                    Roadmap
+                                </a>
+
+                                <form method="POST" action="/admin/containers/<%= container._id %>/status">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <select name="status" onchange="this.form.submit()">
+                                        <% statuses.forEach(status => { %>
+                                            <option value="<%= status %>" <%= status === container.status ? "selected" : "" %>>
+                                                <%= status %>
+                                            </option>
+                                        <% }) %>
+                                    </select>
+                                    <noscript><button class="button button-secondary button-sm">Update</button></noscript>
+                                </form>
+
+                                <button type="button" class="button button-danger button-sm" onclick="document.getElementById('deleteContainerModal-<%= container._id %>').style.display='flex';">
+                                    Delete
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <%
+                            const containerClientLabel = container.user
+                                ? `${container.user.preferredName || container.user.firstName} ${container.user.lastName}`
+                                : "deleted client";
+                            const containerOfferingLabel = container.offering ? container.offering.name : (container.name || "Offering deleted");
+                            const containerConfirmLabel = `${containerClientLabel} — ${containerOfferingLabel}`;
+                        %>
+
+                        <div id="deleteContainerModal-<%= container._id %>" class="modal">
+
+                            <div class="modal-content">
+
+                                <span class="close" onclick="this.closest('.modal').style.display='none';">&times;</span>
+
+                                <h2>Delete this coaching container?</h2>
+
+                                <p style="color:#b91c1c; font-weight:600;">
+                                    This action is irreversible.
+                                </p>
+
+                                <p>
+                                    This removes the container record and cancels any of its upcoming sessions already
+                                    booked in Cal.com. Past sessions are left as-is.
+                                </p>
+
+                                <form method="POST" action="/admin/containers/<%= container._id %>/delete">
+
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                                    <label style="display:block; margin-top:16px;">
+                                        Type <strong><%= containerConfirmLabel %></strong> to confirm.
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        class="delete-confirm-input"
+                                        autocomplete="off"
+                                        data-expected-name="<%= containerConfirmLabel %>"
+                                        style="margin-top:8px;">
+
+                                    <div style="margin-top:20px; display:flex; gap:10px;">
+
+                                        <button type="submit" class="button button-danger delete-confirm-submit" disabled>
+                                            Permanently Delete Container
+                                        </button>
+
+                                        <button type="button" class="button button-secondary" onclick="this.closest('.modal').style.display='none';">
+                                            Cancel
+                                        </button>
+
+                                    </div>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    <% }) %>
+
+                </div>
+
+            <% } %>
+
+        </main>
+
+    </div>
+
+    <script src="/js/localizeDates.js"></script>
+
+    <script>
+        window.addEventListener("click", e => {
+            if (e.target.classList.contains("modal")) {
+                e.target.style.display = "none";
+            }
+        });
+
+        document.querySelectorAll(".delete-confirm-input").forEach(input => {
+            input.addEventListener("input", () => {
+                const submit = input.closest("form").querySelector(".delete-confirm-submit");
+                submit.disabled = input.value !== input.dataset.expectedName;
+            });
+        });
+    </script>
+
+</body>
+
+</html>

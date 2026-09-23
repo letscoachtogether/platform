@@ -1,0 +1,27 @@
+name: Feature request
+description: Suggest something new, or an improvement to something that already exists.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: What are you trying to do that the app doesn't support today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: What would you like to happen?
+      description: Describe the feature or change you have in mind.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Anything else you've considered?
+      description: Other ways to solve this, or context that would help evaluate the idea.
+    validations:
+      required: false

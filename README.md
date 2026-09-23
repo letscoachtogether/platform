@@ -9,6 +9,8 @@ provider, a payment processor, a scheduling tool, and an email service — and
 copy a few codes ("API keys") from each of them into this project. This guide
 walks through every one of those steps in order, in plain language.
 
+**Review the video introduction [here](https://www.youtube.com/watch?v=ul0IBr_2mM8).**
+
 **What's included:**
 - A public marketing site (home) with SEO/structured data
 - Stripe-billed offerings (one-time and subscription), with automatic Cal.com session scheduling on payment
@@ -17,6 +19,10 @@ walks through every one of those steps in order, in plain language.
 - Free client creation (`/admin/clients/new`) — add a client directly with no Stripe payment involved; they get a set-password email, are required to sign the coaching agreement on first login, and land in the same scheduling flow a paying client would
 - Session reminder emails, and event-triggered notifications (session notes posted, new tool added, testimonial reviewed), each with a per-client opt-out
 - CSRF protection, rate limiting, and Mongo-backed sessions (safe for a real multi-process/deploy environment)
+
+**Example Website:**
+
+View an example of a coaching website built on this platform [here](https://kacoachingmethod.com/home)
 
 ## Prerequisites
 

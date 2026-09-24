@@ -33,15 +33,18 @@ on:
 jobs:
   ping:
     runs-on: ubuntu-latest
+    env:
+      APP_URL: ${{ secrets.APP_URL }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
     steps:
       - name: Call /api/cron/session-reminders
-        if: ${{ secrets.APP_URL != '' && secrets.CRON_SECRET != '' }}
+        if: ${{ env.APP_URL != '' && env.CRON_SECRET != '' }}
         run: |
           curl --fail-with-body --max-time 90 \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            "${{ secrets.APP_URL }}/api/cron/session-reminders"
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$APP_URL/api/cron/session-reminders"
 
       - name: Skipped — APP_URL/CRON_SECRET not configured yet
-        if: ${{ secrets.APP_URL == '' || secrets.CRON_SECRET == '' }}
+        if: ${{ env.APP_URL == '' || env.CRON_SECRET == '' }}
         run: |
           echo "APP_URL and/or CRON_SECRET repo secrets aren't set — nothing to ping yet. See the setup comment at the top of this file."
